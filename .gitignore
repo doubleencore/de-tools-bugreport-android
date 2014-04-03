@@ -1,6 +1,11 @@
 .gradle
 /local.properties
-/.idea/workspace.xml
 .DS_Store
-.aar
-build/
+*.aar
+build
+out
+.idea
+*.iml
+*.ipr
+*.iws
+classes
