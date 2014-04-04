@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.detools.bugreportsample.app.MainActivity">
+
+    <Button
+        android:id="@+id/bug_report"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/generate_bug_report"
+        android:layout_alignParentRight="true"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/bug_report"
+        android:layout_marginTop="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/screenshot_monitor"
+            android:gravity="center_vertical"
+            android:layout_gravity="left"/>
+        <ToggleButton
+            android:id="@+id/screenshot_toggle"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"/>
+    </FrameLayout>
+</RelativeLayout>

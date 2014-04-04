@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BugReportSample</string>
+    <string name="generate_bug_report">Generate Bug Report</string>
+    <string name="screenshot_monitor">Monitor Screenshots</string>
+
+</resources>
