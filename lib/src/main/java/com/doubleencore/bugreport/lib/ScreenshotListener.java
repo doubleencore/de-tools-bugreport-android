@@ -1,4 +1,4 @@
-package com.detools.bugreport.lib;
+package com.doubleencore.bugreport.lib;
 
 /**
  * Created on 4/3/14.

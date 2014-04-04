@@ -1,4 +1,4 @@
-package com.detools.bugreportsample.app;
+package com.doubleencore.bugreportsample.app;
 
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -11,10 +11,10 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.detools.bugreport.lib.DataCollection;
-import com.detools.bugreport.lib.DataCollectionListener;
-import com.detools.bugreport.lib.ScreenshotListener;
-import com.detools.bugreport.lib.ScreenshotObserver;
+import com.doubleencore.bugreport.lib.DataCollection;
+import com.doubleencore.bugreport.lib.DataCollectionListener;
+import com.doubleencore.bugreport.lib.ScreenshotListener;
+import com.doubleencore.bugreport.lib.ScreenshotObserver;
 
 import java.io.File;
 

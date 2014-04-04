@@ -10,7 +10,7 @@
         android:label="@string/app_name" >
 
         <activity
-            android:name="com.detools.bugreportsample.app.MainActivity"
+            android:name="com.doubleencore.bugreportsample.app.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>

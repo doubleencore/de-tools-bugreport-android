@@ -1,4 +1,4 @@
-package com.detools.bugreport.lib;
+package com.doubleencore.bugreport.lib;
 
 import android.os.Environment;
 import android.os.FileObserver;
