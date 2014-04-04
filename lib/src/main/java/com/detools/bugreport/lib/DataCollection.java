@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class DataCollection {
 
     private DataCollectionListener mListener;
     private boolean mFilesSet = false;
-    private List<File> mFiles;
+    private List<File> mFiles = new ArrayList<File>();
     private File mOutputDirectory;
     private String mOutputName;
     private Exception mException;
@@ -103,38 +104,42 @@ public class DataCollection {
     }
 
     /**
-     * Sets the list of files to add to a directory
-     * Overwrites any previously set files
+     * Add the list of files to add to a directory
      * @param baseDirectory Directory to look for files in
      * @param searchRecursively true if it should collect files in sub directories
      * @return this
      */
-    public DataCollection collectionFolder(File baseDirectory, boolean searchRecursively) {
-        mFiles = ZipUtils.getFiles(baseDirectory, searchRecursively);
+    public DataCollection addFolder(File baseDirectory, boolean searchRecursively) {
+        mFiles.addAll(ZipUtils.getFiles(baseDirectory, searchRecursively));
         mFilesSet = true;
         return this;
     }
 
     /**
-     * Sets the list of files to add to a directory
-     * Overwrites any previously set files
+     * Add the list of files to add to a directory
      * @param files List of files to add to the zip file
      * @return this
      */
-    public DataCollection setFiles(List<File> files) {
-        mFiles = files;
+    public DataCollection addFiles(List<File> files) {
+        mFiles.addAll(files);
+        mFilesSet = true;
+        return this;
+    }
+
+    public DataCollection addFile(File file) {
+        mFiles.add(file);
         mFilesSet = true;
         return this;
     }
 
     /**
      * Execute the data collection task
-     * Must call {@link #setFiles(java.util.List)} or {@link #collectionFolder(java.io.File, boolean)} prior to calling this method
+     * Must call {@link #addFiles(java.util.List)}, {@link #addFile(java.io.File)} or {@link #addFolder(java.io.File, boolean)} prior to calling this method
      * @return this
      */
     public DataCollection execute() {
         if (!mFilesSet) {
-            throw new IllegalStateException("Must call setFiles() or collectionFolder() before calling execute()");
+            throw new IllegalStateException("Must call addFile(), addFiles() or addFolder() before calling execute()");
         }
         mAsyncTask.execute();
         return this;
