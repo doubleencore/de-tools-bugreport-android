@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.lib;
+package com.doubleencore.bugreport.lib.screenshot;
 
 import android.os.Environment;
 import android.os.FileObserver;

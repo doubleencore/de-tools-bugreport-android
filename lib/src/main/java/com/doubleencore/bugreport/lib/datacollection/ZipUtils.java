@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.lib;
+package com.doubleencore.bugreport.lib.datacollection;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">BugReport</string>
+
+    <string name="screenshot_detected">Screenshot Detected</string>
+    <string name="screenshot_no">No</string>
+    <string name="screenshot_yes">Yes</string>
+    <string name="screenshot_prompt">Would you like to submit a bug report?</string>
+
+    <string name="generating_report">Processing bug report…please wait…</string>
+    <string name="bug_report">Bug report</string>
+    <string name="cancel">Cancel</string>
+
 </resources>

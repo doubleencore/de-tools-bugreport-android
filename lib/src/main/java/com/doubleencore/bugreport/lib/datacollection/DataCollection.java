@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.lib;
+package com.doubleencore.bugreport.lib.datacollection;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

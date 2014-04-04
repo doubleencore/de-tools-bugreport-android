@@ -1,5 +1,6 @@
 package com.doubleencore.bugreportsample.app;
 
+import android.content.DialogInterface;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,10 +12,13 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.doubleencore.bugreport.lib.DataCollection;
-import com.doubleencore.bugreport.lib.DataCollectionListener;
-import com.doubleencore.bugreport.lib.ScreenshotListener;
-import com.doubleencore.bugreport.lib.ScreenshotObserver;
+import com.detools.bugreportsample.app.R;
+import com.doubleencore.bugreport.lib.datacollection.DataCollection;
+import com.doubleencore.bugreport.lib.datacollection.DataCollectionListener;
+import com.doubleencore.bugreport.lib.datacollection.DataDialogFragment;
+import com.doubleencore.bugreport.lib.screenshot.ScreenshotDialogFragment;
+import com.doubleencore.bugreport.lib.screenshot.ScreenshotListener;
+import com.doubleencore.bugreport.lib.screenshot.ScreenshotObserver;
 
 import java.io.File;
 
@@ -27,8 +31,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button bugReport = (Button) findViewById(R.id.bug_report);
-        bugReport.setOnClickListener(new View.OnClickListener() {
+        Button button = (Button) findViewById(R.id.bug_report);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dataCollection(null);
@@ -46,7 +50,19 @@ public class MainActivity extends ActionBarActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    dataCollection(path);
+                                    final ScreenshotDialogFragment frag = ScreenshotDialogFragment.newInstance(new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case DialogInterface.BUTTON_POSITIVE:
+                                                    dataCollection(path);
+                                                default:
+                                                    dialog.dismiss();
+                                            }
+
+                                        }
+                                    });
+                                    frag.show(getSupportFragmentManager(), "SCREENSHOTDIALOG");
                                     Toast.makeText(MainActivity.this, "onScreenshot: " + path, Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -60,10 +76,26 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void dataCollection(String additionalFile) {
-        DataCollection dc = new DataCollection(Environment.getExternalStorageDirectory(), "bugreport.zip", true, this);
+        final DataCollection dc = new DataCollection(Environment.getExternalStorageDirectory(), "bugreport.zip", true, this);
+
+        final DataDialogFragment frag = DataDialogFragment.newInstance(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        dc.cancel(true);
+                        dialog.dismiss();
+                        break;
+                }
+
+            }
+        });
+        frag.show(getSupportFragmentManager(), "DATADIALOGFRAGMENT");
+
         dc.setListener(new DataCollectionListener() {
             @Override
             public void onCollectionCompleted(File file) {
+                frag.dismissAllowingStateLoss();
                 Toast.makeText(MainActivity.this, "onCollectionCompleted", Toast.LENGTH_SHORT).show();
             }
 
