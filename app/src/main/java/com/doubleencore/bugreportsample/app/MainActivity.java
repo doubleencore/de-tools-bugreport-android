@@ -12,7 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.detools.bugreportsample.app.R;
+import com.doubleencore.bugreportsample.app.R;
 import com.doubleencore.bugreport.lib.datacollection.DataCollection;
 import com.doubleencore.bugreport.lib.datacollection.DataCollectionListener;
 import com.doubleencore.bugreport.lib.datacollection.DataDialogFragment;

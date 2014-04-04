@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.detools.bugreport.lib.R;
+import com.doubleencore.bugreport.lib.R;
 
 /**
  * Created on 4/4/14.
