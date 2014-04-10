@@ -10,7 +10,7 @@ android {
     }
 }
 
-version "0.2.2"
+version "0.2.3"
 
 dependencies {
     compile 'com.android.support:support-v4:19.0.+'
