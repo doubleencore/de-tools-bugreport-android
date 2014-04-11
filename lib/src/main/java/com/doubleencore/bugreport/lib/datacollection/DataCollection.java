@@ -91,7 +91,7 @@ public class DataCollection {
         FileWriter fw = new FileWriter(deviceInfo.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
 
-        bw.write("Manufacture: " + Build.MANUFACTURER);
+        bw.write("Manufacturer: " + Build.MANUFACTURER);
         bw.newLine();
         bw.write("Device: " + Build.MODEL);
         bw.newLine();
