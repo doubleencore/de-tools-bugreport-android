@@ -15,6 +15,8 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.doubleencore.bugreport.lib.R;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -32,7 +34,6 @@ public class DataCollectionInternal implements ScreenshotListener {
     private static DataCollectionInternal mDataCollection;
     private Application mApp;
 
-
     private DataCollectionInternal(final Application application) {
         mApp = application;
     }
@@ -43,21 +44,21 @@ public class DataCollectionInternal implements ScreenshotListener {
 
     private void showNotification(File file) {
 
+        Context context = mApp.getApplicationContext();
+
         //send email
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Bug Report");
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, context.getString(R.string.bug_report));
         shareIntent.setType("application/zip");
 
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-        Intent intent = Intent.createChooser(shareIntent, "Share");
-
-        Context context = mApp.getApplicationContext();
+        Intent intent = Intent.createChooser(shareIntent, context.getString(R.string.share));
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentTitle(getAppName() + " bug report")
-                .setContentText("Tap to share the bug report with a developer")
+                .setContentTitle(context.getString(R.string.notification_title, getAppName()))
+                .setContentText(context.getString(R.string.notification_text))
                 .setContentIntent(pendingIntent)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_share))
                 .setSmallIcon(android.R.drawable.ic_menu_share)
