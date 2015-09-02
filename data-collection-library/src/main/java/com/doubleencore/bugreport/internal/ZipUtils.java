@@ -1,5 +1,7 @@
 package com.doubleencore.bugreport.internal;
 
+import android.support.annotation.WorkerThread;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +46,7 @@ public class ZipUtils {
      * @return File to the zip file generate
      * @throws java.io.IOException For any read/write/etc issues
      */
+    @WorkerThread
     public static File generateZip(File path, String zipName, File[] files) throws IOException {
         File file = new File(path, zipName);
         FileOutputStream destination = new FileOutputStream(file);

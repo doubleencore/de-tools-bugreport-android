@@ -16,8 +16,6 @@ public class ScreenshotObserver {
 
     private static volatile FileObserver mFileObserver;
     private static ScreenshotListener mListener;
-    private static boolean mIsObserving;
-
 
     /**
      * Enable observing the screenshots directory to be called back when a screenshot is taken on the device
@@ -33,7 +31,7 @@ public class ScreenshotObserver {
                     @Override
                     public void onEvent(int event, String path) {
                         if (mListener != null && path != null) {
-                            mListener.onScreenshot(screenshotsFolder.getPath() + "/" + path);
+                            mListener.onScreenshot(new File(screenshotsFolder.getPath() + File.separator + path));
                         }
                     }
                 };
@@ -45,12 +43,7 @@ public class ScreenshotObserver {
         }
 
         mFileObserver.startWatching();
-        mIsObserving = true;
         return true;
-    }
-
-    public static boolean isObserving() {
-        return mIsObserving;
     }
 
     /**
@@ -61,7 +54,6 @@ public class ScreenshotObserver {
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
         }
-        mIsObserving = false;
     }
 
     /**

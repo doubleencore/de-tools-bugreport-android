@@ -2,6 +2,7 @@ package com.doubleencore.bugreport;
 
 import android.Manifest;
 import android.app.Application;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresPermission;
 
 import com.doubleencore.bugreport.internal.DataCollectionInternal;
@@ -17,7 +18,7 @@ public class DataCollection {
      *
      */
     @RequiresPermission(allOf = {Manifest.permission_group.STORAGE})
-    public static void setup(Application application) {
+    public static void setup(@NonNull Application application) {
         DataCollectionInternal.setup(application);
     }
 

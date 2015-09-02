@@ -12,6 +12,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -39,11 +41,15 @@ public class DataCollectionInternal implements ScreenshotListener {
         mApp = application;
     }
 
-    public static void setup(Application application) {
+    public static void setup(@NonNull Application application) {
         mDataCollection = new DataCollectionInternal(application);
     }
 
-    private void showNotification(File file) {
+    /**
+     * Builds a notification which when tapped shares the file
+     * @param file The file to attempt to share
+     */
+    private void showNotification(@NonNull File file) {
 
         //send email
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -70,6 +76,7 @@ public class DataCollectionInternal implements ScreenshotListener {
         notificationManager.notify(Integer.MAX_VALUE, notification);
     }
 
+    @NonNull
     private String getAppName() {
         return mApp.getApplicationContext().getString(mApp.getApplicationInfo().labelRes);
     }
@@ -84,7 +91,7 @@ public class DataCollectionInternal implements ScreenshotListener {
      * @return File which was generated that contains the information
      * @throws java.io.IOException
      */
-    private File collectDeviceInfo(Context context) throws IOException {
+    private File collectDeviceInfo(@NonNull Context context) throws IOException {
         File deviceInfo = new File(context.getFilesDir().getParent(), "device_info.txt");
         if (deviceInfo.exists()) {
             deviceInfo.delete();
@@ -113,7 +120,10 @@ public class DataCollectionInternal implements ScreenshotListener {
         execute(null);
     }
 
-    public void execute(File file) {
+    /**
+     * Execute the data collection task
+     */
+    public void execute(@Nullable File file) {
         List<File> files = new ArrayList<>();
         if (file != null) {
             files.add(file);
@@ -127,9 +137,8 @@ public class DataCollectionInternal implements ScreenshotListener {
 
         files.addAll(addApplicationFolders());
 
-        File[] bugs = files.toArray(new File[files.size()]);
-
-        new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, bugs);
+        new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
+                files.toArray(new File[files.size()]));
     }
 
     /**
@@ -138,7 +147,7 @@ public class DataCollectionInternal implements ScreenshotListener {
      * @param packageName Package name to look for
      * @return Value assigned by Jenkins, -1 if not found (ie, dev build)
      */
-    private int getBuildNumber(Context context, String packageName) {
+    private int getBuildNumber(@NonNull Context context, String packageName) {
         PackageManager pm = context.getPackageManager();
         try {
             pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
@@ -153,8 +162,8 @@ public class DataCollectionInternal implements ScreenshotListener {
     }
 
     @Override
-    public void onScreenshot(String path) {
-        execute(new File(path));
+    public void onScreenshot(@NonNull File screenshot) {
+        execute(screenshot);
     }
 
     private List<File> addApplicationFolders() {
@@ -163,7 +172,7 @@ public class DataCollectionInternal implements ScreenshotListener {
 
     private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
         @Override
-        protected File doInBackground(File... files) {
+        protected File doInBackground(@NonNull File... files) {
             try {
                 return ZipUtils.generateZip(mApp.getApplicationContext().getExternalCacheDir(), "bugreport.zip", files);
             } catch (IOException e) {
