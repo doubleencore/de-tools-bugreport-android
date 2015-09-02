@@ -1,1 +1,1 @@
-include ':app', ':data-collection-library', ':data-collection-library-no-op'
+include ':data-collection-sample', ':data-collection-library', ':data-collection-library-no-op'
