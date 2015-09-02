@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.lib.screenshot;
+package com.doubleencore.bugreport.internal;
 
 /**
  * Created on 4/3/14.

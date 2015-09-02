@@ -1,6 +1,5 @@
-package com.doubleencore.bugreport.lib.datacollection;
+package com.doubleencore.bugreport.internal;
 
-import android.Manifest;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -13,12 +12,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.RequiresPermission;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import com.doubleencore.bugreport.lib.screenshot.ScreenshotListener;
-import com.doubleencore.bugreport.lib.screenshot.ScreenshotObserver;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,60 +25,20 @@ import java.util.List;
 /**
  * Created on 4/2/14.
  */
-public class DataCollection implements ScreenshotListener {
+public class DataCollectionInternal implements ScreenshotListener {
 
-    private static final String TAG = DataCollection.class.getSimpleName();
+    private static final String TAG = DataCollectionInternal.class.getSimpleName();
 
-    private boolean mFilesSet = false;
-    private List<File> mFiles = new ArrayList<>();
-    private AsyncTask<Void, Void, File> mAsyncTask;
-    private static DataCollection mDataCollection;
+    private static DataCollectionInternal mDataCollection;
     private Application mApp;
 
 
-    @RequiresPermission (allOf = {Manifest.permission_group.STORAGE})
-    public static void setup(Application application) {
-        mDataCollection = new DataCollection(application);
+    private DataCollectionInternal(final Application application) {
+        mApp = application;
     }
 
-    /** Utility to help collect files related to an apps current state and generate a zip file
-     * @param application
-     *
-     */
-    private DataCollection(final Application application) {
-
-        mApp = application;
-
-        mAsyncTask = new AsyncTask<Void, Void, File>() {
-
-            @Override
-            protected File doInBackground(Void... Void) {
-                File deviceInfo = null;
-                try {
-                    deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
-                    mFiles.add(deviceInfo);
-
-                    File[] bugs = mFiles.toArray(new File[mFiles.size()]);
-
-                    return ZipUtils.generateZip(mApp.getApplicationContext().getExternalCacheDir(), "bugreport.zip", bugs);
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException: " + e);
-                    return null;
-                } finally {
-                    if (deviceInfo != null && deviceInfo.exists()) {
-                        // Ensure we clean up our files
-                        deviceInfo.delete();
-                    }
-                }
-            }
-
-            @Override
-            protected void onPostExecute(File file) {
-                showNotification(file);
-                mFiles.clear();
-                mFilesSet = false;
-            }
-        };
+    public static void setup(Application application) {
+        mDataCollection = new DataCollectionInternal(application);
     }
 
     private void showNotification(File file) {
@@ -119,16 +74,8 @@ public class DataCollection implements ScreenshotListener {
         return mApp.getApplicationContext().getString(mApp.getApplicationInfo().labelRes);
     }
 
-    private static DataCollection getInstance() {
+    public static DataCollectionInternal getInstance() {
         return mDataCollection;
-    }
-
-    public static void enableObserver() {
-        ScreenshotObserver.enableObserver(DataCollection.getInstance());
-    }
-
-    public static void disableObserver() {
-        ScreenshotObserver.disableObserver();
     }
 
     /**
@@ -160,34 +107,30 @@ public class DataCollection implements ScreenshotListener {
     }
 
     /**
-     * Add the list of files to add to a directory
-     * @param baseDirectory Directory to look for files in
-     * @param searchRecursively true if it should collect files in sub directories
-     * @return this
-     */
-    public DataCollection addFolder(File baseDirectory, boolean searchRecursively) {
-        mFiles.addAll(ZipUtils.getFiles(baseDirectory, searchRecursively));
-        mFilesSet = true;
-        return this;
-    }
-
-    public DataCollection addFile(File file) {
-        mFiles.add(file);
-        mFilesSet = true;
-        return this;
-    }
-
-    /**
      * Execute the data collection task
-     * Must call {@link #addFile(java.io.File)} or {@link #addFolder(java.io.File, boolean)} prior to calling this method
-     * @return this
      */
-    private DataCollection execute() {
-        if (!mFilesSet) {
-            throw new IllegalStateException("Must call addFile() or addFolder() before calling execute()");
+    public void execute() {
+        execute(null);
+    }
+
+    public void execute(File file) {
+        List<File> files = new ArrayList<>();
+        if (file != null) {
+            files.add(file);
         }
-        mAsyncTask.execute();
-        return this;
+
+        try {
+            File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
+            files.add(deviceInfo);
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to create device info file: ", e);
+        }
+
+        files.addAll(addApplicationFolders());
+
+        File[] bugs = files.toArray(new File[files.size()]);
+
+        new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, bugs);
     }
 
     /**
@@ -212,18 +155,27 @@ public class DataCollection implements ScreenshotListener {
 
     @Override
     public void onScreenshot(String path) {
-        addFile(new File(path));
-        addApplicationFolders();
-        execute();
+        execute(new File(path));
     }
 
-    public static void executeCollection() {
-        addApplicationFolders();
-        DataCollection.getInstance().execute();
+    private List<File> addApplicationFolders() {
+        return ZipUtils.getFiles(mApp.getFilesDir(), true);
     }
 
-    private static void addApplicationFolders() {
-        DataCollection dc = DataCollection.getInstance();
-        dc.addFolder(dc.mApp.getFilesDir(), true);
+    private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
+        @Override
+        protected File doInBackground(File... files) {
+            try {
+                return ZipUtils.generateZip(mApp.getApplicationContext().getExternalCacheDir(), "bugreport.zip", files);
+            } catch (IOException e) {
+                Log.e(TAG, "IOException: " + e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(File file) {
+            showNotification(file);
+        }
     }
 }

@@ -2,7 +2,7 @@ package com.doubleencore.bugreportsample.app;
 
 import android.app.Application;
 
-import com.doubleencore.bugreport.lib.datacollection.DataCollection;
+import com.doubleencore.bugreport.DataCollection;
 
 /**
  * Created by chris on 9/1/15.
