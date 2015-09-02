@@ -22,7 +22,7 @@ public class ZipUtils {
      * @return list of files
      */
     public static List<File> getFiles(File baseDirectory, boolean recursiveSearch) {
-        ArrayList<File> returnFiles = new ArrayList<File>();
+        ArrayList<File> returnFiles = new ArrayList<>();
         File[] files = baseDirectory.listFiles();
         if (files != null) {
             for (File file : files) {

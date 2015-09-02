@@ -1,4 +1,4 @@
-package com.doubleencore.bugreportsample.app;
+package com.doubleencore.bugreport.sampleapp;
 
 import android.app.Application;
 

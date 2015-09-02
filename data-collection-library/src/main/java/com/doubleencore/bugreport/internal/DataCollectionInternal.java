@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.doubleencore.bugreport.lib.R;
 
@@ -44,30 +45,28 @@ public class DataCollectionInternal implements ScreenshotListener {
 
     private void showNotification(File file) {
 
-        Context context = mApp.getApplicationContext();
-
         //send email
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, context.getString(R.string.bug_report));
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mApp.getString(R.string.bug_report));
         shareIntent.setType("application/zip");
 
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-        Intent intent = Intent.createChooser(shareIntent, context.getString(R.string.share));
+        Intent intent = Intent.createChooser(shareIntent, mApp.getString(R.string.share));
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mApp, 0, intent, 0);
 
-        Notification notification = new NotificationCompat.Builder(context)
-                .setContentTitle(context.getString(R.string.notification_title, getAppName()))
-                .setContentText(context.getString(R.string.notification_text))
+        Notification notification = new NotificationCompat.Builder(mApp)
+                .setContentTitle(mApp.getString(R.string.notification_title, getAppName()))
+                .setContentText(mApp.getString(R.string.notification_text))
                 .setContentIntent(pendingIntent)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_share))
+                .setLargeIcon(BitmapFactory.decodeResource(mApp.getResources(), android.R.drawable.ic_menu_share))
                 .setSmallIcon(android.R.drawable.ic_menu_share)
                 .setLocalOnly(true)
                 .build();
 
         notification.flags = Notification.FLAG_AUTO_CANCEL;
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(Integer.MAX_VALUE, notification);
     }
 
@@ -121,8 +120,7 @@ public class DataCollectionInternal implements ScreenshotListener {
         }
 
         try {
-            File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
-            files.add(deviceInfo);
+            collectDeviceInfo(mApp.getApplicationContext());
         } catch (IOException e) {
             Log.e(TAG, "Unable to create device info file: ", e);
         }
@@ -160,7 +158,7 @@ public class DataCollectionInternal implements ScreenshotListener {
     }
 
     private List<File> addApplicationFolders() {
-        return ZipUtils.getFiles(mApp.getFilesDir(), true);
+        return ZipUtils.getFiles(new File(mApp.getApplicationInfo().dataDir), true);
     }
 
     private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
@@ -176,7 +174,12 @@ public class DataCollectionInternal implements ScreenshotListener {
 
         @Override
         protected void onPostExecute(File file) {
-            showNotification(file);
+            if (file != null) {
+                showNotification(file);
+            } else {
+                Toast.makeText(mApp, "Unable to create bug report", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 }
