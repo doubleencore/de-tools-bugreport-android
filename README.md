@@ -42,3 +42,15 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 ```
+
+## Generating a report
+
+To manually trigger a report:
+
+```java
+    DataCollection.executeCollection();
+```
+
+Or if you have enabled screenshot monitoring, simply trigger a screenshot on the device.
+
+Both will result in a notification displaying which will allow you send a .zip file of the contents.
