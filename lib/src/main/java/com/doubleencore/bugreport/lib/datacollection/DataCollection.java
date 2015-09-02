@@ -1,11 +1,24 @@
 package com.doubleencore.bugreport.lib.datacollection;
 
+import android.Manifest;
+import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.RequiresPermission;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.doubleencore.bugreport.lib.screenshot.ScreenshotListener;
+import com.doubleencore.bugreport.lib.screenshot.ScreenshotObserver;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,42 +30,44 @@ import java.util.List;
 /**
  * Created on 4/2/14.
  */
-public class DataCollection {
+public class DataCollection implements ScreenshotListener {
 
     private static final String TAG = DataCollection.class.getSimpleName();
 
-    private DataCollectionListener mListener;
     private boolean mFilesSet = false;
-    private List<File> mFiles = new ArrayList<File>();
-    private File mOutputDirectory;
-    private String mOutputName;
-    private Exception mException;
+    private List<File> mFiles = new ArrayList<>();
     private AsyncTask<Void, Void, File> mAsyncTask;
+    private static DataCollection mDataCollection;
+    private Application mApp;
+
+
+    @RequiresPermission (allOf = {Manifest.permission_group.STORAGE})
+    public static void setup(Application application) {
+        mDataCollection = new DataCollection(application);
+    }
 
     /** Utility to help collect files related to an apps current state and generate a zip file
-     * @param outputDirectory Directory to store output in
-     * @param outputName File name for generated zip file
-     * @param collectDeviceInfo generates a file containing some basic device info
-     * @param context required only if collectDeviceInfo is true
+     * @param application
+     *
      */
-    public DataCollection(File outputDirectory, String outputName, final boolean collectDeviceInfo, final Context context) {
-        mOutputDirectory = outputDirectory;
-        mOutputName = outputName;
+    private DataCollection(final Application application) {
+
+        mApp = application;
 
         mAsyncTask = new AsyncTask<Void, Void, File>() {
+
             @Override
             protected File doInBackground(Void... Void) {
                 File deviceInfo = null;
                 try {
-                    if (collectDeviceInfo) {
-                        deviceInfo = collectDeviceInfo(context);
-                        mFiles.add(deviceInfo);
-                    }
+                    deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
+                    mFiles.add(deviceInfo);
+
                     File[] bugs = mFiles.toArray(new File[mFiles.size()]);
 
-                    return ZipUtils.generateZip(mOutputDirectory, mOutputName, bugs);
+                    return ZipUtils.generateZip(mApp.getApplicationContext().getExternalCacheDir(), "bugreport.zip", bugs);
                 } catch (IOException e) {
-                    mException = e;
+                    Log.e(TAG, "IOException: " + e);
                     return null;
                 } finally {
                     if (deviceInfo != null && deviceInfo.exists()) {
@@ -64,15 +79,56 @@ public class DataCollection {
 
             @Override
             protected void onPostExecute(File file) {
-                if (mListener != null) {
-                    if (file != null) {
-                        mListener.onCollectionCompleted(file);
-                    } else if (mException != null) {
-                        mListener.onCollectionFailed(mException);
-                    }
-                }
+                showNotification(file);
+                mFiles.clear();
+                mFilesSet = false;
             }
         };
+    }
+
+    private void showNotification(File file) {
+
+        //send email
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Bug Report");
+        shareIntent.setType("application/zip");
+
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+        Intent intent = Intent.createChooser(shareIntent, "Share");
+
+        Context context = mApp.getApplicationContext();
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+        Notification notification = new NotificationCompat.Builder(context)
+                .setContentTitle(getAppName() + " bug report")
+                .setContentText("Tap to share the bug report with a developer")
+                .setContentIntent(pendingIntent)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_share))
+                .setSmallIcon(android.R.drawable.ic_menu_share)
+                .setLocalOnly(true)
+                .build();
+
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(Integer.MAX_VALUE, notification);
+    }
+
+    private String getAppName() {
+        return mApp.getApplicationContext().getString(mApp.getApplicationInfo().labelRes);
+    }
+
+    private static DataCollection getInstance() {
+        return mDataCollection;
+    }
+
+    public static void enableObserver() {
+        ScreenshotObserver.enableObserver(DataCollection.getInstance());
+    }
+
+    public static void disableObserver() {
+        ScreenshotObserver.disableObserver();
     }
 
     /**
@@ -115,17 +171,6 @@ public class DataCollection {
         return this;
     }
 
-    /**
-     * Add the list of files to add to a directory
-     * @param files List of files to add to the zip file
-     * @return this
-     */
-    public DataCollection addFiles(List<File> files) {
-        mFiles.addAll(files);
-        mFilesSet = true;
-        return this;
-    }
-
     public DataCollection addFile(File file) {
         mFiles.add(file);
         mFilesSet = true;
@@ -134,32 +179,15 @@ public class DataCollection {
 
     /**
      * Execute the data collection task
-     * Must call {@link #addFiles(java.util.List)}, {@link #addFile(java.io.File)} or {@link #addFolder(java.io.File, boolean)} prior to calling this method
+     * Must call {@link #addFile(java.io.File)} or {@link #addFolder(java.io.File, boolean)} prior to calling this method
      * @return this
      */
-    public DataCollection execute() {
+    private DataCollection execute() {
         if (!mFilesSet) {
-            throw new IllegalStateException("Must call addFile(), addFiles() or addFolder() before calling execute()");
+            throw new IllegalStateException("Must call addFile() or addFolder() before calling execute()");
         }
         mAsyncTask.execute();
         return this;
-    }
-
-    /**
-     * Attempt to cancel the task.
-     * See {@link android.os.AsyncTask#cancel(boolean)} for details.
-     * @param mayInterruptIfRunning
-     */
-    public void cancel(boolean mayInterruptIfRunning) {
-        mAsyncTask.cancel(mayInterruptIfRunning);
-    }
-
-    /**
-     * Sets the listener for callbacks
-     * @param listener Listener for sending callbacks
-     */
-    public void setListener(DataCollectionListener listener) {
-        mListener = listener;
     }
 
     /**
@@ -180,5 +208,22 @@ public class DataCollection {
             Log.e(TAG, "Name not found: ", e);
         }
         return -1;
+    }
+
+    @Override
+    public void onScreenshot(String path) {
+        addFile(new File(path));
+        addApplicationFolders();
+        execute();
+    }
+
+    public static void executeCollection() {
+        addApplicationFolders();
+        DataCollection.getInstance().execute();
+    }
+
+    private static void addApplicationFolders() {
+        DataCollection dc = DataCollection.getInstance();
+        dc.addFolder(dc.mApp.getFilesDir(), true);
     }
 }
