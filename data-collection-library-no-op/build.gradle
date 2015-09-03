@@ -21,7 +21,11 @@ android {
     }
 }
 
+version project.PROJECT_VERSION_NUMBER
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.0'
 }
+
+apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"
