@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+
+        versionCode Integer.parseInt(project.PROJECT_VERSION_CODE)
+        versionName project.PROJECT_VERSION_NUMBER
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+version project.PROJECT_VERSION_NUMBER
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.0.0'
+}
+
+apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

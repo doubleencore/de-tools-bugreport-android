@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BugReport</string>
+
+    <string name="notification_title">%s bug report</string>
+    <string name="notification_text">Tap to share the bug report with a developer</string>
+    <string name="share">Share</string>
+    <string name="bug_report">Bug report</string>
+
+</resources>
