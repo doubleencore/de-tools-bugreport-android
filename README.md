@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
+## Permissions
+
+The library which should be included with debug builds requires `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE`.  The no-op version does not have any permissions requirements. 
+
 ## Generating a report
 
 To manually trigger a report:
