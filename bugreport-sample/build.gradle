@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
@@ -11,13 +11,17 @@ android {
         versionCode Integer.parseInt(project.PROJECT_VERSION_CODE)
         versionName project.PROJECT_VERSION_NUMBER
     }
-}
 
-version project.PROJECT_VERSION_NUMBER
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
 
 dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.0.0'
+    debugCompile project(':bugreport-library')
+    releaseCompile project(':bugreport-library-no-op')
 }
-
-apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

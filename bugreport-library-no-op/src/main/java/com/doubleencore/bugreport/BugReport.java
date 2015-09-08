@@ -5,7 +5,7 @@ import android.app.Application;
 /**
  * Created by chris on 9/2/15.
  */
-public class DataCollection {
+public class BugReport {
 
     public static void setup(Application application) { }
 

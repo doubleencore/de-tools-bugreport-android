@@ -30,19 +30,19 @@ import java.util.List;
 /**
  * Created on 4/2/14.
  */
-public class DataCollectionInternal implements ScreenshotListener {
+public class BugReportInternal implements ScreenshotListener {
 
-    private static final String TAG = DataCollectionInternal.class.getSimpleName();
+    private static final String TAG = BugReportInternal.class.getSimpleName();
 
-    private static DataCollectionInternal mDataCollection;
+    private static BugReportInternal mDataCollection;
     private Application mApp;
 
-    private DataCollectionInternal(final Application application) {
+    private BugReportInternal(final Application application) {
         mApp = application;
     }
 
     public static void setup(@NonNull Application application) {
-        mDataCollection = new DataCollectionInternal(application);
+        mDataCollection = new BugReportInternal(application);
     }
 
     /**
@@ -81,7 +81,7 @@ public class DataCollectionInternal implements ScreenshotListener {
         return mApp.getApplicationContext().getString(mApp.getApplicationInfo().labelRes);
     }
 
-    public static DataCollectionInternal getInstance() {
+    public static BugReportInternal getInstance() {
         return mDataCollection;
     }
 

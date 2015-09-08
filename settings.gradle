@@ -1,1 +1,1 @@
-include ':data-collection-sample', ':data-collection-library', ':data-collection-library-no-op'
+include ':bugreport-sample', ':bugreport-library', ':bugreport-library-no-op'

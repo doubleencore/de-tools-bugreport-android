@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.doubleencore.bugreport.DataCollection;
+import com.doubleencore.bugreport.BugReport;
 import com.doubleencore.bugreportsample.app.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DataCollection.executeCollection();
+                BugReport.executeCollection();
             }
         });
     }
@@ -27,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DataCollection.enableObserver();
+        BugReport.enableObserver();
     }
 
     @Override
     protected void onPause() {
-        DataCollection.disableObserver();
+        BugReport.disableObserver();
         super.onPause();
     }
 }
