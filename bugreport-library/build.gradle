@@ -19,4 +19,4 @@ dependencies {
     compile 'com.android.support:support-v4:23.0.0'
 }
 
-apply from: "/Users/chris/dev/scripts/gradle-mvn-push.gradle"
+apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"
