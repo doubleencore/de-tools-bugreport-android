@@ -8,8 +8,8 @@ In your `build.gradle`:
 
 ```gradle
  dependencies {
-    debugCompile project(':data-collection-library')
-    releaseCompile project(':data-collection-library-no-op')
+    debugCompile 'com.doubleencore:de-tools-bugreport-android:0.4.0'
+    releaseCompile 'com.doubleencore:de-tools-bugreport-no-op-android:0.4.0'
  }
 ```
 
@@ -20,7 +20,7 @@ public class ExampleApplication extends Application {
 
   @Override public void onCreate() {
     super.onCreate();
-    DataCollection.setup(this);
+    BugReport.setup(this);
   }
 }
 ```
@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DataCollection.enableObserver();
+        BugReport.enableObserver();
     }
 
     @Override
     protected void onPause() {
-        DataCollection.disableObserver();
+        BugReport.disableObserver();
         super.onPause();
     }
 }
@@ -52,7 +52,7 @@ The library which should be included with debug builds requires `WRITE_EXTERNAL_
 To manually trigger a report:
 
 ```java
-    DataCollection.executeCollection();
+    BugReport.executeCollection();
 ```
 
 Or if you have enabled screenshot monitoring, simply trigger a screenshot on the device.
