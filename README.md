@@ -7,6 +7,13 @@ A simple library to collect the database, cache, files and basic device informat
 In your `build.gradle`:
 
 ```gradle
+repositories {
+
+    maven {
+        url "http://champa.dblenc.net:8081/nexus/content/repositories/releases/"
+    }
+}
+
  dependencies {
     debugCompile 'com.doubleencore:de-tools-bugreport-android:0.4.0'
     releaseCompile 'com.doubleencore:de-tools-bugreport-no-op-android:0.4.0'
