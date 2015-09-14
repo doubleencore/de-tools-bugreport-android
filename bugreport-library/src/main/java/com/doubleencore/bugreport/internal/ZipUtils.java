@@ -49,7 +49,7 @@ public class ZipUtils {
      * @throws java.io.IOException For any read/write/etc issues
      */
     @WorkerThread
-    public static File generateZip(File path, String zipName, File[] files) throws IOException {
+    public static File generateZip(File path, String zipName, List<File> files) throws IOException {
         File file = new File(path, zipName);
         FileOutputStream destination = new FileOutputStream(file);
         ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(destination));

@@ -92,7 +92,7 @@ public class BugReportInternal implements ScreenshotListener {
      * @throws java.io.IOException
      */
     private File collectDeviceInfo(@NonNull Context context) throws IOException {
-        File deviceInfo = new File(context.getFilesDir().getParent(), "device_info.txt");
+        File deviceInfo = new File(context.getExternalCacheDir(), "device_info.txt");
         if (deviceInfo.exists()) {
             deviceInfo.delete();
             deviceInfo.createNewFile();
@@ -123,22 +123,10 @@ public class BugReportInternal implements ScreenshotListener {
     /**
      * Execute the data collection task
      */
-    public void execute(@Nullable File file) {
-        List<File> files = new ArrayList<>();
-        if (file != null) {
-            files.add(file);
-        }
-
-        try {
-            collectDeviceInfo(mApp.getApplicationContext());
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to create device info file: ", e);
-        }
-
-        files.addAll(addApplicationFolders());
+    public void execute(@Nullable File screenshot) {
 
         new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
-                files.toArray(new File[files.size()]));
+                screenshot);
     }
 
     /**
@@ -172,8 +160,19 @@ public class BugReportInternal implements ScreenshotListener {
 
     private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
         @Override
-        protected File doInBackground(@NonNull File... files) {
+        protected File doInBackground(File... screenshot) {
             try {
+
+                List<File> files = new ArrayList<>();
+                if (screenshot.length > 0 && screenshot[0] != null) {
+                    files.add(screenshot[0]);
+                }
+
+                File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
+                files.add(deviceInfo);
+
+                files.addAll(addApplicationFolders());
+
                 return ZipUtils.generateZip(mApp.getApplicationContext().getExternalCacheDir(), "bugreport.zip", files);
             } catch (IOException e) {
                 Log.e(TAG, "IOException: " + e);
