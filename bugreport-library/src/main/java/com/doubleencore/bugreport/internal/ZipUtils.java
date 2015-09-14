@@ -28,10 +28,12 @@ public class ZipUtils {
         File[] files = baseDirectory.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (recursiveSearch && file.isDirectory()) {
-                    returnFiles.addAll(getFiles(file, true));
-                } else {
-                    returnFiles.add(file);
+                if (file.canRead()) {
+                    if (recursiveSearch && file.isDirectory()) {
+                        returnFiles.addAll(getFiles(file, true));
+                    } else {
+                        returnFiles.add(file);
+                    }
                 }
             }
         }
