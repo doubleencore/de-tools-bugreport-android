@@ -21,8 +21,4 @@ android {
 }
 version project.PROJECT_VERSION_NUMBER
 
-dependencies {
-    compile project(':bugreport-library-common')
-}
-
 apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

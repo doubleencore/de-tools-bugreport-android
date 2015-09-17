@@ -3,13 +3,14 @@ package com.doubleencore.bugreport;
 import android.app.Activity;
 import android.app.Application;
 
-import com.doubleencore.bugreport.common.BaseBugReport;
-
 
 /**
  * Created by chris on 9/2/15.
  */
-public class BugReport extends BaseBugReport {
+public class BugReport {
+
+    public static final int ENABLE_OBSERVER = 500;
+    public static final int EXECUTE_COLLECTION = 501;
 
     public static void setup(Application application) { }
 

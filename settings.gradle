@@ -1,1 +1,1 @@
-include ':bugreport-sample', ':bugreport-library', ':bugreport-library-no-op', ':bugreport-library-common'
+include ':bugreport-sample', ':bugreport-library', ':bugreport-library-no-op'

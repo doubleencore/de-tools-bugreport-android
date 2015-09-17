@@ -6,14 +6,16 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
-import com.doubleencore.bugreport.common.BaseBugReport;
 import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.internal.ScreenshotObserver;
 
 /**
  * Created by chris on 9/2/15.
  */
-public class BugReport extends BaseBugReport {
+public class BugReport {
+
+    public static final int ENABLE_OBSERVER = 500;
+    public static final int EXECUTE_COLLECTION = 501;
 
     /** Utility to help collect files related to an apps current state and generate a zip file
      * @param application Reference to the application looking to collect data
