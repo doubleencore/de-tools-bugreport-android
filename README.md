@@ -37,29 +37,45 @@ If you want to trigger a report from a screenshot, in your `Activity` or `Fragme
 public class MainActivity extends AppCompatActivity {
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        BugReport.enableObserver();
+    protected void onStart() {
+        super.onStart();
+        BugReport.enableObserver(this);
     }
 
     @Override
-    protected void onPause() {
-        BugReport.disableObserver();
-        super.onPause();
+    protected void onStop() {
+        BugReport.disableObserver(this);
+        super.onStop();
     }
 }
 ```
 
 ## Permissions
 
-The library which should be included with debug builds requires `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE`.  The no-op version does not have any permissions requirements. 
+The library which should be included with debug builds requires `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE`.  The no-op version does not have any permissions requirements.
+
+If supporting M, the activity which enables the observer, or executes a collection will need to implement `onRequestPermissionResult()`:
+```java
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        switch (requestCode) {
+            case BugReport.ENABLE_OBSERVER:
+                if (granted) BugReport.enableObserver(this);
+                break;
+            case BugReport.EXECUTE_COLLECTION:
+                if (granted) BugReport.executeCollection(this);
+                break;
+        }
+    }
+```
 
 ## Generating a report
 
 To manually trigger a report:
 
 ```java
-    BugReport.executeCollection();
+    BugReport.executeCollection(this);
 ```
 
 Or if you have enabled screenshot monitoring, simply trigger a screenshot on the device.
