@@ -15,8 +15,8 @@ repositories {
 }
 
  dependencies {
-    debugCompile 'com.doubleencore:de-tools-bugreport-android:0.4.0'
-    releaseCompile 'com.doubleencore:de-tools-bugreport-no-op-android:0.4.0'
+    debugCompile 'com.doubleencore:de-tools-bugreport-android:0.4.2'
+    releaseCompile 'com.doubleencore:de-tools-bugreport-no-op-android:0.4.2'
  }
 ```
 
