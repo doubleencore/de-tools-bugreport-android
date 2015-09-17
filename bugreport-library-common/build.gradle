@@ -11,13 +11,10 @@ android {
         versionCode Integer.parseInt(project.PROJECT_VERSION_CODE)
         versionName project.PROJECT_VERSION_NUMBER
     }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 }
-
-version project.PROJECT_VERSION_NUMBER
-
-dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
-    compile project(':bugreport-library-common')
-}
-
-apply from: "/Users/chris/dev/scripts/gradle-mvn-push.gradle"

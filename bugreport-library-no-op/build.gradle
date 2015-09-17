@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-
 android {
 
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
@@ -20,7 +19,8 @@ android {
         }
     }
 }
-
 version project.PROJECT_VERSION_NUMBER
-
-apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"
+apply from: "/Users/chris/dev/scripts/gradle-mvn-push.gradle"
+dependencies {
+    compile project(':bugreport-library-common')
+}

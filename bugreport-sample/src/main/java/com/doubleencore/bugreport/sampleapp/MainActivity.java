@@ -1,6 +1,8 @@
 package com.doubleencore.bugreport.sampleapp;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -19,20 +21,33 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BugReport.executeCollection();
+                BugReport.executeCollection(MainActivity.this);
             }
         });
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        BugReport.enableObserver();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        switch (requestCode) {
+            case BugReport.ENABLE_OBSERVER:
+                if (granted) BugReport.enableObserver(this);
+                break;
+            case BugReport.EXECUTE_COLLECTION:
+                if (granted) BugReport.executeCollection(this);
+                break;
+        }
     }
 
     @Override
-    protected void onPause() {
+    protected void onStart() {
+        super.onStart();
+        BugReport.enableObserver(this);
+    }
+
+    @Override
+    protected void onStop() {
         BugReport.disableObserver();
-        super.onPause();
+        super.onStop();
     }
 }
