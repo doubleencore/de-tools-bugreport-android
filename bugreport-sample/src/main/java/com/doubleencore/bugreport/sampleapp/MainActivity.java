@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case BugReport.ENABLE_OBSERVER:
