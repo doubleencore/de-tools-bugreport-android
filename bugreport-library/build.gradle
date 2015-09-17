@@ -20,4 +20,4 @@ dependencies {
     compile project(':bugreport-library-common')
 }
 
-apply from: "/Users/chris/dev/scripts/gradle-mvn-push.gradle"
+apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

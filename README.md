@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
 The library which should be included with debug builds requires `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE`.  The no-op version does not have any permissions requirements.
 
-If supporting M, the activity which enables the observer, or executes a collection will need to implement `onRequestPermissionResult()`:
+If supporting M, the activity which enables the observer, or executes a collection will need to implement `onRequestPermissionsResult()`:
 ```java
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
