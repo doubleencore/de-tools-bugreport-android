@@ -9,8 +9,8 @@ import android.app.Application;
  */
 public class BugReport {
 
-    public static final int ENABLE_OBSERVER = 500;
-    public static final int EXECUTE_COLLECTION = 501;
+    public static final int ENABLE_OBSERVER = 250;
+    public static final int EXECUTE_COLLECTION = 251;
 
     public static void setup(Application application) { }
 

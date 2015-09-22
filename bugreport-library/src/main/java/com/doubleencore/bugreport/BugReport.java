@@ -16,8 +16,8 @@ import com.doubleencore.bugreport.internal.ScreenshotObserver;
  */
 public class BugReport {
 
-    public static final int ENABLE_OBSERVER = 500;
-    public static final int EXECUTE_COLLECTION = 501;
+    public static final int ENABLE_OBSERVER = 250;
+    public static final int EXECUTE_COLLECTION = 251;
 
     /** Utility to help collect files related to an apps current state and generate a zip file
      * @param application Reference to the application looking to collect data
