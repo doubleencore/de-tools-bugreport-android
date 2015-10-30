@@ -16,7 +16,7 @@ android {
 version project.PROJECT_VERSION_NUMBER
 
 dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.android.support:support-v4:23.1.0'
 }
 
 apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

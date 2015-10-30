@@ -20,10 +20,13 @@ import android.widget.Toast;
 
 import com.doubleencore.bugreport.lib.R;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,7 +116,27 @@ public class BugReportInternal implements ScreenshotListener {
         return deviceInfo;
     }
 
-    /**
+    @Nullable
+    private File collectLogcat(@NonNull Context context) throws IOException {
+
+        Process process = Runtime.getRuntime().exec("logcat -v long -d");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        FileOutputStream outputStream;
+
+        File file = new File(context.getExternalFilesDir(null), "logcat.txt");
+        outputStream = new FileOutputStream(file);
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            outputStream.write(line.getBytes());
+            outputStream.write("\n".getBytes());
+        }
+        outputStream.close();
+
+        return file;
+
+    }
+
+        /**
      * Execute the data collection task
      */
     public void execute() {
@@ -170,6 +193,9 @@ public class BugReportInternal implements ScreenshotListener {
 
                 File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
                 files.add(deviceInfo);
+
+                File logcat = collectLogcat(mApp.getApplicationContext());
+                files.add(logcat);
 
                 files.addAll(addApplicationFolders());
 
