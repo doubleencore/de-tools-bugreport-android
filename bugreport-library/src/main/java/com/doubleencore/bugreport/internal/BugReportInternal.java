@@ -6,8 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +16,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.doubleencore.buildutils.BuildUtils;
 import com.doubleencore.bugreport.lib.R;
 
 import java.io.BufferedReader;
@@ -110,7 +109,7 @@ public class BugReportInternal implements ScreenshotListener {
         bw.newLine();
         bw.write("OS API: " + Build.VERSION.SDK_INT);
         bw.newLine();
-        bw.write("Build #: " + getBuildNumber(context, context.getPackageName()));
+        bw.write("Build #: " + BuildUtils.getBuildNumber(mApp.getApplicationContext()));
 
         bw.close();
         return deviceInfo;
@@ -150,26 +149,6 @@ public class BugReportInternal implements ScreenshotListener {
 
         new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
                 screenshot);
-    }
-
-    /**
-     * Gets the build number assigned by Jenkins
-     * @param context context to the app
-     * @param packageName Package name to look for
-     * @return Value assigned by Jenkins, -1 if not found (ie, dev build)
-     */
-    private int getBuildNumber(@NonNull Context context, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        try {
-            pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-            ApplicationInfo ai = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            if (null != ai.metaData && ai.metaData.containsKey("de_build_version")) {
-                return ai.metaData.getInt("de_build_version");
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Name not found: ", e);
-        }
-        return -1;
     }
 
     @Override

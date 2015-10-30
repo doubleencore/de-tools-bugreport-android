@@ -1,5 +1,9 @@
 apply plugin: 'com.android.library'
 
+repositories {
+    maven { url "http://champa.dblenc.net:8081/nexus/content/repositories/releases/" }
+}
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -16,6 +20,7 @@ android {
 version project.PROJECT_VERSION_NUMBER
 
 dependencies {
+    compile 'com.doubleencore:de-tools-build-util-android:0.1.0'
     compile "com.android.support:support-v4:$rootProject.appCompatVersion"
 }
 
