@@ -43,14 +43,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         BugReport.enableObserver(this);
     }
 
     @Override
-    protected void onStop() {
-        BugReport.disableObserver();
-        super.onStop();
+    protected void onPause() {
+        BugReport.enableObserver(this);
+        super.onPause();
     }
 }
