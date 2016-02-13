@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 repositories {
-    maven { url "http://champa.dblenc.net:8081/nexus/content/repositories/releases/" }
+    maven { url "https://jitpack.io" }
 }
 
 android {
