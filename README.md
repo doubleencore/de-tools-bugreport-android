@@ -4,6 +4,21 @@ A simple library to collect the database, cache, files and basic device informat
 
 ## Getting started
 
+
+In your `build.gradle`:
+
+```gradle
+repositories {
+    ...
+    maven { url "https://jitpack.io" }
+}
+
+ dependencies {
+    debugCompile 'com.github.doubleencore.de-tools-bugreport-android:bugreport-library:0.4.7'
+    releaseCompile 'com.github.doubleencore.de-tools-bugreport-android:bugreport-library-no-op:0.4.7'
+ }
+```
+
 In your `Application` class:
 
 ```java
