@@ -4,22 +4,6 @@ A simple library to collect the database, cache, files and basic device informat
 
 ## Getting started
 
-In your `build.gradle`:
-
-```gradle
-repositories {
-
-    maven {
-        url "http://champa.dblenc.net:8081/nexus/content/repositories/releases/"
-    }
-}
-
- dependencies {
-    debugCompile 'com.doubleencore:de-tools-bugreport-android:0.4.2'
-    releaseCompile 'com.doubleencore:de-tools-bugreport-no-op-android:0.4.2'
- }
-```
-
 In your `Application` class:
 
 ```java
@@ -81,11 +65,3 @@ To manually trigger a report:
 Or if you have enabled screenshot monitoring, simply trigger a screenshot on the device.
 
 Both will result in a notification displaying which will allow you send a .zip file of the contents.
-
-# Deploying a new version
-
-1. Modify source, compile and test with sample application
-2. Modify `PROJECT_VERSION_CODE` and `PROJECT_VERSION_NUMBER` in `gradle.properties`
-3. Submit a pull request to merge to `develop`; approve and merge.
-4. Merge `develop` into `master`
-5. Initiate build on [http://jenkins.dblenc.net/job/LibAndroidBugreport/]
