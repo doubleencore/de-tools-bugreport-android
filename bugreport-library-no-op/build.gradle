@@ -20,5 +20,3 @@ android {
     }
 }
 version project.PROJECT_VERSION_NUMBER
-
-apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"

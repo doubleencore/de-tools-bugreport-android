@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 repositories {
-    maven { url "http://champa.dblenc.net:8081/nexus/content/repositories/releases/" }
+    maven { url "https://jitpack.io" }
 }
 
 android {
@@ -20,8 +20,6 @@ android {
 version project.PROJECT_VERSION_NUMBER
 
 dependencies {
-    compile 'com.doubleencore:de-tools-build-util-android:0.1.0'
+    compile 'com.github.doubleencore:de-tools-build-util-android:0.1.1'
     compile "com.android.support:support-v4:$rootProject.appCompatVersion"
 }
-
-apply from: "$GRADLE_SCRIPTS/gradle-mvn-push.gradle"
