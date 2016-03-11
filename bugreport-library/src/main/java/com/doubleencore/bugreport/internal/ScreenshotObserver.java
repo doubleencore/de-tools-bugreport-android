@@ -23,7 +23,7 @@ public class ScreenshotObserver {
     private static final long OBSERVE_FREQUENCY = TimeUnit.SECONDS.toMillis(1L);
 
     private static volatile FileObserver mFileObserver;
-    private static BugReportInternal mListener;
+    private static ScreenshotListener mListener;
 
     private static FileAlterationObserver mFileAlterationObserver;
     private static FileAlterationMonitor mFileAlterationMonitor;
@@ -34,7 +34,7 @@ public class ScreenshotObserver {
      * @return true if enabling was successful, false otherwise
      */
     private static boolean enableObserverDefault(final ScreenshotListener listener) {
-        mListener = (BugReportInternal) listener;
+        mListener = listener;
         if (mFileObserver == null) {
             try {
                 final File screenshotsFolder = getScreenshotDirectory();
@@ -58,12 +58,52 @@ public class ScreenshotObserver {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private static boolean enableObserverMarshmallow(final FileAlterationListener listener) {
-        mListener = (BugReportInternal) listener;
+    private static boolean enableObserverMarshmallow(final ScreenshotListener listener) {
+        mListener = listener;
         if (mFileAlterationObserver == null) {
             try {
                 mFileAlterationObserver = new FileAlterationObserver(getScreenshotDirectory());
-                mFileAlterationObserver.addListener(mListener);
+                mFileAlterationObserver.addListener(new FileAlterationListener() {
+                    @Override
+                    public void onStart(FileAlterationObserver observer) {
+
+                    }
+
+                    @Override
+                    public void onDirectoryCreate(File directory) {
+
+                    }
+
+                    @Override
+                    public void onDirectoryChange(File directory) {
+
+                    }
+
+                    @Override
+                    public void onDirectoryDelete(File directory) {
+
+                    }
+
+                    @Override
+                    public void onFileCreate(File file) {
+                        mListener.onScreenshot(file);
+                    }
+
+                    @Override
+                    public void onFileChange(File file) {
+
+                    }
+
+                    @Override
+                    public void onFileDelete(File file) {
+
+                    }
+
+                    @Override
+                    public void onStop(FileAlterationObserver observer) {
+
+                    }
+                });
                 mFileAlterationObserver.initialize();
                 mFileAlterationMonitor = new FileAlterationMonitor(OBSERVE_FREQUENCY);
                 mFileAlterationMonitor.addObserver(mFileAlterationObserver);
@@ -79,7 +119,7 @@ public class ScreenshotObserver {
         return true;
     }
 
-    public static boolean enableObserver(final BugReportInternal listener) {
+    public static boolean enableObserver(final ScreenshotListener listener) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return ScreenshotObserver.enableObserverMarshmallow(listener);
         } else {

@@ -16,11 +16,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.doubleencore.buildutils.BuildUtils;
 import com.doubleencore.bugreport.lib.R;
-
-import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationObserver;
+import com.doubleencore.buildutils.BuildUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,7 +32,7 @@ import java.util.List;
 /**
  * Created on 4/2/14.
  */
-public class BugReportInternal implements ScreenshotListener, FileAlterationListener {
+public class BugReportInternal implements ScreenshotListener {
 
     private static final String TAG = BugReportInternal.class.getSimpleName();
 
@@ -161,46 +158,6 @@ public class BugReportInternal implements ScreenshotListener, FileAlterationList
 
     private List<File> addApplicationFolders() {
         return ZipUtils.getFiles(new File(mApp.getApplicationInfo().dataDir), true);
-    }
-
-    @Override
-    public void onStart(FileAlterationObserver observer) {
-
-    }
-
-    @Override
-    public void onDirectoryCreate(File directory) {
-
-    }
-
-    @Override
-    public void onDirectoryChange(File directory) {
-
-    }
-
-    @Override
-    public void onDirectoryDelete(File directory) {
-
-    }
-
-    @Override
-    public void onFileCreate(File file) {
-        onScreenshot(file);
-    }
-
-    @Override
-    public void onFileChange(File file) {
-
-    }
-
-    @Override
-    public void onFileDelete(File file) {
-
-    }
-
-    @Override
-    public void onStop(FileAlterationObserver observer) {
-
     }
 
     private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
