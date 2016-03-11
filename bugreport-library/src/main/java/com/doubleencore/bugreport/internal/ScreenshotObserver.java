@@ -12,6 +12,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created on 4/3/14.
@@ -19,6 +20,7 @@ import java.io.FileNotFoundException;
 public class ScreenshotObserver {
 
     private static final String TAG = ScreenshotObserver.class.getSimpleName();
+    private static final long OBSERVE_FREQUENCY = TimeUnit.SECONDS.toMillis(1L);
 
     private static volatile FileObserver mFileObserver;
     private static ScreenshotListener mListener;
@@ -32,7 +34,7 @@ public class ScreenshotObserver {
      * @param listener receiving callbacks of files created in the screenshot directory
      * @return true if enabling was successful, false otherwise
      */
-    public static boolean enableObserver(final ScreenshotListener listener) {
+    public static boolean enableObserverDefault(final ScreenshotListener listener) {
         mListener = listener;
         if (mFileObserver == null) {
             try {
@@ -57,14 +59,14 @@ public class ScreenshotObserver {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    public static boolean enableObserverMushroom(final FileAlterationListener listener) {
+    public static boolean enableObserverMarshmallow(final FileAlterationListener listener) {
         mFileAlterationListener = listener;
         if (mFileAlterationObserver == null) {
             try {
                 mFileAlterationObserver = new FileAlterationObserver(getScreenshotDirectory());
                 mFileAlterationObserver.addListener(mFileAlterationListener);
                 mFileAlterationObserver.initialize();
-                mFileAlterationMonitor = new FileAlterationMonitor(1000L);
+                mFileAlterationMonitor = new FileAlterationMonitor(OBSERVE_FREQUENCY);
                 mFileAlterationMonitor.addObserver(mFileAlterationObserver);
                 mFileAlterationMonitor.start();
             } catch (FileNotFoundException e) {
@@ -76,6 +78,14 @@ public class ScreenshotObserver {
             }
         }
         return true;
+    }
+
+    public static boolean enableObserver(final BugReportInternal listener) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ScreenshotObserver.enableObserverMarshmallow(listener);
+        } else {
+            return ScreenshotObserver.enableObserverDefault(listener);
+        }
     }
 
     /**
