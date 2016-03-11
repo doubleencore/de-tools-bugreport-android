@@ -23,10 +23,9 @@ public class ScreenshotObserver {
     private static final long OBSERVE_FREQUENCY = TimeUnit.SECONDS.toMillis(1L);
 
     private static volatile FileObserver mFileObserver;
-    private static ScreenshotListener mListener;
+    private static BugReportInternal mListener;
 
     private static FileAlterationObserver mFileAlterationObserver;
-    private static FileAlterationListener mFileAlterationListener;
     private static FileAlterationMonitor mFileAlterationMonitor;
 
     /**
@@ -34,8 +33,8 @@ public class ScreenshotObserver {
      * @param listener receiving callbacks of files created in the screenshot directory
      * @return true if enabling was successful, false otherwise
      */
-    public static boolean enableObserverDefault(final ScreenshotListener listener) {
-        mListener = listener;
+    private static boolean enableObserverDefault(final ScreenshotListener listener) {
+        mListener = (BugReportInternal) listener;
         if (mFileObserver == null) {
             try {
                 final File screenshotsFolder = getScreenshotDirectory();
@@ -59,12 +58,12 @@ public class ScreenshotObserver {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    public static boolean enableObserverMarshmallow(final FileAlterationListener listener) {
-        mFileAlterationListener = listener;
+    private static boolean enableObserverMarshmallow(final FileAlterationListener listener) {
+        mListener = (BugReportInternal) listener;
         if (mFileAlterationObserver == null) {
             try {
                 mFileAlterationObserver = new FileAlterationObserver(getScreenshotDirectory());
-                mFileAlterationObserver.addListener(mFileAlterationListener);
+                mFileAlterationObserver.addListener(mListener);
                 mFileAlterationObserver.initialize();
                 mFileAlterationMonitor = new FileAlterationMonitor(OBSERVE_FREQUENCY);
                 mFileAlterationMonitor.addObserver(mFileAlterationObserver);
@@ -93,7 +92,6 @@ public class ScreenshotObserver {
      */
     public static void disableObserver() {
         mListener = null;
-        mFileAlterationListener = null;
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
         }
