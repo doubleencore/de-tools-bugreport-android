@@ -21,6 +21,7 @@ version project.PROJECT_VERSION_NUMBER
 
 dependencies {
     compile 'com.github.doubleencore:de-tools-build-util-android:0.1.1'
+    compile 'com.getbase:floatingactionbutton:1.10.1'
     compile "com.android.support:support-v4:$rootProject.appCompatVersion"
     compile "commons-io:commons-io:2.4"
 }

@@ -43,6 +43,10 @@ public class BugReport {
         ScreenshotObserver.disableObserver();
     }
 
+    public static void annotateView(@NonNull Activity activity) {
+        BugReportInternal.getInstance().annotateView(activity);
+    }
+
     private static boolean checkPermissions(Activity activity, int requestCode) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED) {

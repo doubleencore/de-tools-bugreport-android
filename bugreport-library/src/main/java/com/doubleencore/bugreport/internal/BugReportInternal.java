@@ -1,19 +1,26 @@
 package com.doubleencore.bugreport.internal;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.internal.widget.ContentFrameLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.doubleencore.bugreport.lib.R;
@@ -26,18 +33,21 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created on 4/2/14.
  */
-public class BugReportInternal implements ScreenshotListener {
+public class BugReportInternal implements ScreenshotListener  {
 
     private static final String TAG = BugReportInternal.class.getSimpleName();
 
     private static BugReportInternal mDataCollection;
     private Application mApp;
+    private WeakReference<Activity> mActivity;
 
     private BugReportInternal(final Application application) {
         mApp = application;
@@ -87,6 +97,31 @@ public class BugReportInternal implements ScreenshotListener {
         return mDataCollection;
     }
 
+    public void annotateView(Activity activity) {
+        // Find the root view
+        ContentFrameLayout root = (ContentFrameLayout) activity.findViewById(android.R.id.content);
+
+        // Copy all the views into a holder
+        ArrayList<View> views = new ArrayList<>(root.getChildCount());
+        for (int i = 0; i < root.getChildCount(); i++) {
+            views.add(root.getChildAt(i));
+        }
+
+        // Remove all views in preparation to inject our container
+        root.removeAllViews();
+
+        // Inflate our new view
+        FrameLayout fl = (FrameLayout) LayoutInflater.from(activity).inflate(R.layout.annotated_container, root, true);
+        FrameLayout content = (FrameLayout) fl.findViewById(R.id.content);
+
+        // Re-add all the previous children from the root
+        for (View view : views) {
+            content.addView(view);
+        }
+
+        mActivity = new WeakReference<>(activity);
+    }
+
     /**
      * Collects basic info about the device and current build
      * @param context context for the app
@@ -132,7 +167,41 @@ public class BugReportInternal implements ScreenshotListener {
         outputStream.close();
 
         return file;
+    }
 
+    @Nullable
+    private File captureScreen() {
+        Activity activity = mActivity.get();
+        if (activity != null) {
+            Date now = new Date();
+            android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+
+            try {
+                // image naming and path  to include sd card  appending name you choose for file
+                String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
+
+                // create bitmap screen capture
+                View v1 = activity.getWindow().getDecorView().getRootView();
+                v1.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+                v1.setDrawingCacheEnabled(false);
+
+                File imageFile = new File(mPath);
+
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                int quality = 87;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                outputStream.flush();
+                outputStream.close();
+
+                return imageFile;
+            } catch (IOException e) {
+                Log.e(TAG, "File exception: ", e);
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
         /**
@@ -168,6 +237,8 @@ public class BugReportInternal implements ScreenshotListener {
                 List<File> files = new ArrayList<>();
                 if (screenshot.length > 0 && screenshot[0] != null) {
                     files.add(screenshot[0]);
+                } else {
+                    files.add(captureScreen());
                 }
 
                 File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());

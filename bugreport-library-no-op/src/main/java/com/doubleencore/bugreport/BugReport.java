@@ -19,4 +19,6 @@ public class BugReport {
     public static void enableObserver(Activity activity) { }
 
     public static void disableObserver() { }
+
+    public static void annotateView(Activity activity) { }
 }

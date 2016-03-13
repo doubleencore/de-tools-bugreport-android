@@ -6,4 +6,9 @@
     <string name="share">Share</string>
     <string name="bug_report">Bug report</string>
 
+    <!-- Annotate View -->
+    <string name="send_report">Send Report</string>
+    <string name="clear">Clear</string>
+    <string name="Draw">Draw</string>
+
 </resources>
