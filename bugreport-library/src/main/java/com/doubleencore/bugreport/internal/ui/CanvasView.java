@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.internal;
+package com.doubleencore.bugreport.internal.ui;
 
 
 import android.content.Context;

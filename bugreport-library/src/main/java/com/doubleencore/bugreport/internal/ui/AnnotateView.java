@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.internal;
+package com.doubleencore.bugreport.internal.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.lib.R;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
