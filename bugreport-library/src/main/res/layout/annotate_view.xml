@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             app:fab_icon="@android:drawable/ic_menu_send"
             app:fab_size="mini"
-            app:fab_title="Send Report"/>
+            app:fab_title="@string/send_report"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/clear"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             app:fab_icon="@android:drawable/ic_menu_close_clear_cancel"
             app:fab_size="mini"
-            app:fab_title="Clear"/>
+            app:fab_title="@string/clear"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/draw"
@@ -40,7 +40,8 @@
             android:layout_height="wrap_content"
             app:fab_icon="@android:drawable/ic_menu_edit"
             app:fab_size="mini"
-            app:fab_title="Draw"/>
+            app:fab_title="@string/draw"/>
+
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

@@ -9,6 +9,6 @@
     <!-- Annotate View -->
     <string name="send_report">Send Report</string>
     <string name="clear">Clear</string>
-    <string name="Draw">Draw</string>
+    <string name="draw">Draw</string>
 
 </resources>

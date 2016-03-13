@@ -12,14 +12,13 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.internal.widget.ContentFrameLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -35,7 +34,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -99,7 +98,7 @@ public class BugReportInternal implements ScreenshotListener  {
 
     public void annotateView(Activity activity) {
         // Find the root view
-        ContentFrameLayout root = (ContentFrameLayout) activity.findViewById(android.R.id.content);
+        ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
 
         // Copy all the views into a holder
         ArrayList<View> views = new ArrayList<>(root.getChildCount());
@@ -151,13 +150,13 @@ public class BugReportInternal implements ScreenshotListener  {
     }
 
     @Nullable
-    private File collectLogcat(@NonNull Context context) throws IOException {
+    private File collectLogcat() throws IOException {
 
         Process process = Runtime.getRuntime().exec("logcat -v long -d");
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         FileOutputStream outputStream;
 
-        File file = new File(context.getExternalFilesDir(null), "logcat.txt");
+        File file = getExternalFile(mApp, "logcat.txt");
         outputStream = new FileOutputStream(file);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
@@ -173,20 +172,15 @@ public class BugReportInternal implements ScreenshotListener  {
     private File captureScreen() {
         Activity activity = mActivity.get();
         if (activity != null) {
-            Date now = new Date();
-            android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
-
             try {
-                // image naming and path  to include sd card  appending name you choose for file
-                String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
-
                 // create bitmap screen capture
-                View v1 = activity.getWindow().getDecorView().getRootView();
-                v1.setDrawingCacheEnabled(true);
-                Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-                v1.setDrawingCacheEnabled(false);
+                View rootView = activity.getWindow().getDecorView().getRootView();
+                rootView.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
+                rootView.setDrawingCacheEnabled(false);
 
-                File imageFile = new File(mPath);
+                // Output file
+                File imageFile = getExternalFile(mApp, "ScreenCapture_" + Calendar.getInstance().getTimeInMillis() + ".jpg");
 
                 FileOutputStream outputStream = new FileOutputStream(imageFile);
                 int quality = 87;
@@ -204,6 +198,10 @@ public class BugReportInternal implements ScreenshotListener  {
         }
     }
 
+    private File getExternalFile(@NonNull  Context context, @NonNull String filename) {
+        return new File(context.getExternalFilesDir(null), filename);
+    }
+
         /**
      * Execute the data collection task
      */
@@ -215,7 +213,6 @@ public class BugReportInternal implements ScreenshotListener  {
      * Execute the data collection task
      */
     public void execute(@Nullable File screenshot) {
-
         new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
                 screenshot);
     }
@@ -244,7 +241,7 @@ public class BugReportInternal implements ScreenshotListener  {
                 File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
                 files.add(deviceInfo);
 
-                File logcat = collectLogcat(mApp.getApplicationContext());
+                File logcat = collectLogcat();
                 files.add(logcat);
 
                 files.addAll(addApplicationFolders());
