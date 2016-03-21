@@ -4,6 +4,21 @@ A simple library to collect the database, cache, files and basic device informat
 
 ## Getting started
 
+
+In your `build.gradle`:
+
+```gradle
+repositories {
+    ...
+    maven { url "https://jitpack.io" }
+}
+
+ dependencies {
+    debugCompile 'com.github.doubleencore.de-tools-bugreport-android:bugreport-library:0.4.8'
+    releaseCompile 'com.github.doubleencore.de-tools-bugreport-android:bugreport-library-no-op:0.4.8'
+ }
+```
+
 In your `Application` class:
 
 ```java
@@ -28,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        BugReport.enableObserver(this);
+        BugReport.disableObserver();
         super.onPause();
     }
 }
@@ -42,7 +57,7 @@ If supporting M, the activity which enables the observer, or executes a collecti
 ```java
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case BugReport.ENABLE_OBSERVER:
                 if (granted) BugReport.enableObserver(this);

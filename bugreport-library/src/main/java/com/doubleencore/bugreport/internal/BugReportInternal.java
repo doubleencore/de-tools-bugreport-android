@@ -16,8 +16,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.doubleencore.buildutils.BuildUtils;
 import com.doubleencore.bugreport.lib.R;
+import com.doubleencore.buildutils.BuildUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
