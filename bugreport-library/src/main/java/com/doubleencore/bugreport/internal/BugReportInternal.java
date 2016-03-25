@@ -97,27 +97,12 @@ public class BugReportInternal implements ScreenshotListener  {
     }
 
     public void annotateView(Activity activity) {
-        // Find the root view
         ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
 
-        // Copy all the views into a holder
-        ArrayList<View> views = new ArrayList<>(root.getChildCount());
-        for (int i = 0; i < root.getChildCount(); i++) {
-            views.add(root.getChildAt(i));
+        if (root.findViewById(R.id.annotate_view) == null) {
+            FrameLayout fl = (FrameLayout) LayoutInflater.from(activity).inflate(R.layout.annotated_container, root, false);
+            root.addView(fl, root.getChildCount());
         }
-
-        // Remove all views in preparation to inject our container
-        root.removeAllViews();
-
-        // Inflate our new view
-        FrameLayout fl = (FrameLayout) LayoutInflater.from(activity).inflate(R.layout.annotated_container, root, true);
-        FrameLayout content = (FrameLayout) fl.findViewById(R.id.content);
-
-        // Re-add all the previous children from the root
-        for (View view : views) {
-            content.addView(view);
-        }
-
         mActivity = new WeakReference<>(activity);
     }
 
