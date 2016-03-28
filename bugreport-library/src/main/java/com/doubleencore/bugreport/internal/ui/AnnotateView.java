@@ -110,6 +110,7 @@ public class AnnotateView extends FrameLayout {
                 fam.collapse();
             } else if (i == R.id.send) {
                 BugReportInternal.getInstance().execute();
+                canvas.clear();
                 fam.collapse();
                 hideAnnotation();
             } else if (i == R.id.clear) {
