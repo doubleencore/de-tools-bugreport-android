@@ -66,7 +66,6 @@ public class AnnotateView extends FrameLayout {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 return trackClicks();
-
         }
         return false;
     }
@@ -117,8 +116,6 @@ public class AnnotateView extends FrameLayout {
             } else {
                 throw new IllegalStateException("Unknown ID: " + i);
             }
-
         }
     };
-
 }

@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * Created on 4/2/14.
  */
-public class BugReportInternal implements ScreenshotListener  {
+public class BugReportInternal implements ScreenshotListener {
 
     private static final String TAG = BugReportInternal.class.getSimpleName();
 

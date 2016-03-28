@@ -42,7 +42,6 @@
             app:fab_size="mini"
             app:fab_title="@string/draw"/>
 
-
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </merge>
