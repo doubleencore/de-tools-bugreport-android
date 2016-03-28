@@ -5,7 +5,7 @@ import android.app.Application;
 
 
 /**
- * Created by chris on 9/2/15.
+ * Created on 9/2/15.
  */
 public class BugReport {
 

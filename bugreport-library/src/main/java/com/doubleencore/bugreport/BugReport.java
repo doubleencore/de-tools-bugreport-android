@@ -12,7 +12,7 @@ import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.internal.ScreenshotObserver;
 
 /**
- * Created by chris on 9/2/15.
+ * Created on 9/2/15.
  */
 public class BugReport {
 

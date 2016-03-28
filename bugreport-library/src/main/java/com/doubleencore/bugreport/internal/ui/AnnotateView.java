@@ -16,7 +16,7 @@ import java.util.Calendar;
 
 
 /**
- * Created by chris on 3/11/16.
+ * Created on 3/11/16.
  */
 public class AnnotateView extends FrameLayout {
 
