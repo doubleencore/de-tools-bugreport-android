@@ -19,7 +19,7 @@ public class CanvasView extends View {
     private static final String TAG = CanvasView.class.getSimpleName();
     private static final float STROKE_WIDTH = 10f;
 
-    private boolean drawable = false;
+    private boolean isDrawable = false;
 
     /** Need to track this so the dirty region can accommodate the stroke. **/
     private static final float HALF_STROKE_WIDTH = STROKE_WIDTH / 2;
@@ -55,11 +55,11 @@ public class CanvasView extends View {
     }
 
     public void setDrawable(boolean drawable) {
-        this.drawable = drawable;
+        this.isDrawable = drawable;
     }
 
     public boolean isDrawable() {
-        return drawable;
+        return isDrawable;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CanvasView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!drawable) return false;
+        if (!isDrawable) return false;
 
         float eventX = event.getX();
         float eventY = event.getY();
