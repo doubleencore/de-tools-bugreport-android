@@ -65,7 +65,11 @@ public class AnnotateView extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                return trackClicks();
+                boolean tripleClick = trackClicks();
+                if (tripleClick) {
+                    showAnnotation();
+                }
+                return tripleClick;
         }
         return false;
     }
@@ -77,7 +81,6 @@ public class AnnotateView extends FrameLayout {
             lastClick = now;
             if (clickCount == TRIPLE_CLICK) {
                 clickCount = 0;
-                showAnnotation();
                 return true;
             }
         } else {
