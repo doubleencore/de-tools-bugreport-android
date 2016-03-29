@@ -12,7 +12,7 @@ import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.internal.ScreenshotObserver;
 
 /**
- * Created by chris on 9/2/15.
+ * Created on 9/2/15.
  */
 public class BugReport {
 
@@ -41,6 +41,10 @@ public class BugReport {
 
     public static void disableObserver() {
         ScreenshotObserver.disableObserver();
+    }
+
+    public static void annotateView(@NonNull Activity activity) {
+        BugReportInternal.getInstance().annotateView(activity);
     }
 
     private static boolean checkPermissions(Activity activity, int requestCode) {

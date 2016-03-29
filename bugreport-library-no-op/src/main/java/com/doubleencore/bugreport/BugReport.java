@@ -5,7 +5,7 @@ import android.app.Application;
 
 
 /**
- * Created by chris on 9/2/15.
+ * Created on 9/2/15.
  */
 public class BugReport {
 
@@ -19,4 +19,6 @@ public class BugReport {
     public static void enableObserver(Activity activity) { }
 
     public static void disableObserver() { }
+
+    public static void annotateView(Activity activity) { }
 }

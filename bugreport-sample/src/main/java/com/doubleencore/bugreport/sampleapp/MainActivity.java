@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        BugReport.annotateView(this);
+
         Button button = (Button) findViewById(R.id.bug_report);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,10 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        boolean granted = false;
-        if (grantResults.length > 0) {
-            granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        }
+        boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case BugReport.ENABLE_OBSERVER:
                 if (granted) BugReport.enableObserver(this);
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        BugReport.enableObserver(this);
+        BugReport.disableObserver();
         super.onPause();
     }
 }

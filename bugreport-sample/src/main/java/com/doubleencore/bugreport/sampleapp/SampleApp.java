@@ -5,7 +5,7 @@ import android.app.Application;
 import com.doubleencore.bugreport.BugReport;
 
 /**
- * Created by chris on 9/1/15.
+ * Created on 9/1/15.
  */
 public class SampleApp extends Application {
 

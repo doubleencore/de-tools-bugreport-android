@@ -1,11 +1,13 @@
 package com.doubleencore.bugreport.internal;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,6 +16,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.doubleencore.bugreport.lib.R;
@@ -26,7 +32,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -38,6 +46,7 @@ public class BugReportInternal implements ScreenshotListener {
 
     private static BugReportInternal mDataCollection;
     private Application mApp;
+    private WeakReference<Activity> mActivity;
 
     private BugReportInternal(final Application application) {
         mApp = application;
@@ -87,6 +96,16 @@ public class BugReportInternal implements ScreenshotListener {
         return mDataCollection;
     }
 
+    public void annotateView(Activity activity) {
+        ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
+
+        if (root.findViewById(R.id.annotate_view) == null) {
+            FrameLayout fl = (FrameLayout) LayoutInflater.from(activity).inflate(R.layout.annotated_container, root, false);
+            root.addView(fl, root.getChildCount());
+        }
+        mActivity = new WeakReference<>(activity);
+    }
+
     /**
      * Collects basic info about the device and current build
      * @param context context for the app
@@ -116,13 +135,13 @@ public class BugReportInternal implements ScreenshotListener {
     }
 
     @Nullable
-    private File collectLogcat(@NonNull Context context) throws IOException {
+    private File collectLogcat() throws IOException {
 
         Process process = Runtime.getRuntime().exec("logcat -v long -d");
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         FileOutputStream outputStream;
 
-        File file = new File(context.getExternalFilesDir(null), "logcat.txt");
+        File file = getExternalFile(mApp, "logcat.txt");
         outputStream = new FileOutputStream(file);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
@@ -132,7 +151,40 @@ public class BugReportInternal implements ScreenshotListener {
         outputStream.close();
 
         return file;
+    }
 
+    @Nullable
+    private File captureScreen() {
+        Activity activity = mActivity.get();
+        if (activity != null) {
+            try {
+                // create bitmap screen capture
+                View rootView = activity.getWindow().getDecorView().getRootView();
+                rootView.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
+                rootView.setDrawingCacheEnabled(false);
+
+                // Output file
+                File imageFile = getExternalFile(mApp, "ScreenCapture_" + Calendar.getInstance().getTimeInMillis() + ".jpg");
+
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                int quality = 87;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                outputStream.flush();
+                outputStream.close();
+
+                return imageFile;
+            } catch (IOException e) {
+                Log.e(TAG, "File exception: ", e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private File getExternalFile(@NonNull  Context context, @NonNull String filename) {
+        return new File(context.getExternalFilesDir(null), filename);
     }
 
         /**
@@ -146,7 +198,6 @@ public class BugReportInternal implements ScreenshotListener {
      * Execute the data collection task
      */
     public void execute(@Nullable File screenshot) {
-
         new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
                 screenshot);
     }
@@ -168,12 +219,14 @@ public class BugReportInternal implements ScreenshotListener {
                 List<File> files = new ArrayList<>();
                 if (screenshot.length > 0 && screenshot[0] != null) {
                     files.add(screenshot[0]);
+                } else {
+                    files.add(captureScreen());
                 }
 
                 File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
                 files.add(deviceInfo);
 
-                File logcat = collectLogcat(mApp.getApplicationContext());
+                File logcat = collectLogcat();
                 files.add(logcat);
 
                 files.addAll(addApplicationFolders());
