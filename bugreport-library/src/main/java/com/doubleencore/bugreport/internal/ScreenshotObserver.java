@@ -63,47 +63,7 @@ public class ScreenshotObserver {
         if (mFileAlterationObserver == null) {
             try {
                 mFileAlterationObserver = new FileAlterationObserver(getScreenshotDirectory());
-                mFileAlterationObserver.addListener(new FileAlterationListener() {
-                    @Override
-                    public void onStart(FileAlterationObserver observer) {
-
-                    }
-
-                    @Override
-                    public void onDirectoryCreate(File directory) {
-
-                    }
-
-                    @Override
-                    public void onDirectoryChange(File directory) {
-
-                    }
-
-                    @Override
-                    public void onDirectoryDelete(File directory) {
-
-                    }
-
-                    @Override
-                    public void onFileCreate(File file) {
-                        mListener.onScreenshot(file);
-                    }
-
-                    @Override
-                    public void onFileChange(File file) {
-
-                    }
-
-                    @Override
-                    public void onFileDelete(File file) {
-
-                    }
-
-                    @Override
-                    public void onStop(FileAlterationObserver observer) {
-
-                    }
-                });
+                mFileAlterationObserver.addListener(mFileAlterationListener);
                 mFileAlterationObserver.initialize();
                 mFileAlterationMonitor = new FileAlterationMonitor(OBSERVE_FREQUENCY);
                 mFileAlterationMonitor.addObserver(mFileAlterationObserver);
@@ -132,14 +92,34 @@ public class ScreenshotObserver {
      */
     public static void disableObserver() {
         mListener = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            disableObserverMarshmallow();
+        } else {
+            disableObserverDefault();
+        }
+
+    }
+
+    private static void disableObserverDefault() {
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
         }
+    }
+
+    private static void disableObserverMarshmallow() {
         if (mFileAlterationMonitor != null) {
             try {
                 mFileAlterationMonitor.stop();
             } catch (Exception e) {
                 Log.e(TAG, "Error stopping file monitor: " + e);
+            }
+        }
+        if (mFileAlterationObserver != null) {
+            try {
+                mFileAlterationObserver.removeListener(mFileAlterationListener);
+                mFileAlterationObserver.destroy();
+            } catch (Exception e) {
+                Log.e(TAG, "Error stopping file observer: " + e);
             }
         }
     }
@@ -157,4 +137,48 @@ public class ScreenshotObserver {
         }
         return screenshotFolder;
     }
+
+    private static FileAlterationListener mFileAlterationListener = new FileAlterationListener() {
+        @Override
+        public void onStart(FileAlterationObserver observer) {
+
+        }
+
+        @Override
+        public void onDirectoryCreate(File directory) {
+
+        }
+
+        @Override
+        public void onDirectoryChange(File directory) {
+
+        }
+
+        @Override
+        public void onDirectoryDelete(File directory) {
+
+        }
+
+        @Override
+        public void onFileCreate(File file) {
+            if (mListener != null) {
+                mListener.onScreenshot(file);
+            }
+        }
+
+        @Override
+        public void onFileChange(File file) {
+
+        }
+
+        @Override
+        public void onFileDelete(File file) {
+
+        }
+
+        @Override
+        public void onStop(FileAlterationObserver observer) {
+
+        }
+    };
 }
