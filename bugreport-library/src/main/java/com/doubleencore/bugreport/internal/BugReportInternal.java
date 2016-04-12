@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.doubleencore.bugreport.internal.jira.CreateIssueActivity;
 import com.doubleencore.bugreport.lib.R;
 import com.doubleencore.buildutils.BuildUtils;
 
@@ -45,6 +46,9 @@ public class BugReportInternal implements ScreenshotListener {
     private static final String TAG = BugReportInternal.class.getSimpleName();
 
     private static BugReportInternal mDataCollection;
+    private static String mJiraProjectKey;
+    private static String mJiraUsername;
+    private static String mJiraPassword;
     private Application mApp;
     private WeakReference<Activity> mActivity;
 
@@ -56,29 +60,53 @@ public class BugReportInternal implements ScreenshotListener {
         mDataCollection = new BugReportInternal(application);
     }
 
+    public static void setupJira(@NonNull String projectKey, @NonNull String username, @NonNull String password) {
+        mJiraProjectKey = projectKey;
+        mJiraUsername = username;
+        mJiraPassword = password;
+    }
+
+    public static String getJiraProjectKey() {
+        return mJiraProjectKey;
+    }
+
+    public static String getJiraUsername() {
+        return mJiraUsername;
+    }
+
+    public static String getJiraPassword() {
+        return mJiraPassword;
+    }
+
     /**
      * Builds a notification which when tapped shares the file
      * @param file The file to attempt to share
      */
     private void showNotification(@NonNull File file) {
+        Uri fileUri = Uri.fromFile(file);
 
         //send email
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mApp.getString(R.string.bug_report));
         shareIntent.setType("application/zip");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
         Intent intent = Intent.createChooser(shareIntent, mApp.getString(R.string.share));
+        PendingIntent sharePendingIntent = PendingIntent.getActivity(mApp, 0, intent, 0);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(mApp, 0, intent, 0);
+        // Create JIRA Issue
+        Intent createJiraIssueIntent = new Intent(mApp, CreateIssueActivity.class);
+        createJiraIssueIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+
+        PendingIntent jiraPendingIntent = PendingIntent.getActivity(mApp, 0, createJiraIssueIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(mApp)
                 .setContentTitle(mApp.getString(R.string.notification_title, getAppName()))
-                .setContentText(mApp.getString(R.string.notification_text))
-                .setContentIntent(pendingIntent)
                 .setLargeIcon(BitmapFactory.decodeResource(mApp.getResources(), android.R.drawable.ic_menu_share))
                 .setSmallIcon(android.R.drawable.ic_menu_share)
                 .setLocalOnly(true)
+                .addAction(android.R.drawable.ic_menu_share, "Share Bug Report", sharePendingIntent)
+                .addAction(R.drawable.ic_jira, "Create JIRA Issue", jiraPendingIntent)
                 .build();
 
         notification.flags = Notification.FLAG_AUTO_CANCEL;

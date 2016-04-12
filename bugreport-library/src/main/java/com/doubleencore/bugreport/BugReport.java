@@ -27,6 +27,10 @@ public class BugReport {
         BugReportInternal.setup(application);
     }
 
+    public static void setupJira(@NonNull String projectKey, @NonNull String username, @NonNull String password) {
+        BugReportInternal.setupJira(projectKey, username, password);
+    }
+
     public static void executeCollection(@NonNull Activity activity) {
         if (checkPermissions(activity, BugReport.EXECUTE_COLLECTION)) {
             BugReportInternal.getInstance().execute();

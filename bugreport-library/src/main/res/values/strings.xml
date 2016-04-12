@@ -11,4 +11,14 @@
     <string name="clear">Clear</string>
     <string name="draw">Draw</string>
 
+    <!-- Create JIRA Issue -->
+    <string name="summary">Summary</string>
+    <string name="description">Description</string>
+    <string name="create_issue">Create Issue</string>
+    <string name="enter_summary">Enter Issue Summary</string>
+    <string name="enter_description">Enter Issue Description</string>
+    <string name="jira_project_title">JIRA Project %s</string>
+    <string name="please_enter_summary">Please enter a summary.</string>
+    <string name="jira_intent_label">Create JIRA Issue</string>
+
 </resources>
