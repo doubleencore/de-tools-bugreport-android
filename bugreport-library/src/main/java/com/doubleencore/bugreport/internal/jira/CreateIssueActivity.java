@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.lib.R;
 
-public class CreateIssueActivity extends AppCompatActivity implements JiraService.CreateIssueListener {
+public class CreateIssueActivity extends AppCompatActivity {
 
     private static final String TAG = CreateIssueActivity.class.getName();
 
@@ -42,17 +42,8 @@ public class CreateIssueActivity extends AppCompatActivity implements JiraServic
 
         view.setEnabled(false);
 
-        JiraService jiraService = new JiraService(this, this);
+        JiraService jiraService = new JiraService(this);
         jiraService.createJiraIssue(attachmentUri, summary, description);
-    }
-
-    @Override
-    public void onIssueCreatedSuccess(CreateIssueResponse response) {
-        finish();
-    }
-
-    @Override
-    public void onIssueCreatedFailed() {
         finish();
     }
 }

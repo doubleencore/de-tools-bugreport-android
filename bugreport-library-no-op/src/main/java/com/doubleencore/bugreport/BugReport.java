@@ -14,7 +14,7 @@ public class BugReport {
 
     public static void setup(Application application) { }
 
-    public static void setupJira(String projectKey, String username, String password) { }
+    public static void enableJira(String projectKey, String username, String password) { }
 
     public static void executeCollection(Activity activity) { }
 

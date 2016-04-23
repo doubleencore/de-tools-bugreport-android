@@ -13,6 +13,6 @@ public class SampleApp extends Application {
     public void onCreate() {
         super.onCreate();
         BugReport.setup(this);
-        BugReport.setupJira("<JIRA_Project_Key>", "<JIRA_Username>", "<JIRA_Password>");
+        BugReport.enableJira("<JIRA_Project_Key>", "<JIRA_Username>", "<JIRA_Password>");
     }
 }

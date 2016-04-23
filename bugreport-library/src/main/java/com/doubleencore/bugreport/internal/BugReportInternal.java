@@ -15,9 +15,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -60,7 +60,7 @@ public class BugReportInternal implements ScreenshotListener {
         mDataCollection = new BugReportInternal(application);
     }
 
-    public static void setupJira(@NonNull String projectKey, @NonNull String username, @NonNull String password) {
+    public static void enableJira(@NonNull String projectKey, @NonNull String username, @NonNull String password) {
         mJiraProjectKey = projectKey;
         mJiraUsername = username;
         mJiraPassword = password;
@@ -78,6 +78,12 @@ public class BugReportInternal implements ScreenshotListener {
         return mJiraPassword;
     }
 
+    public static boolean isJiraEnabled() {
+        return !TextUtils.isEmpty(mJiraPassword) &&
+                    !TextUtils.isEmpty(mJiraUsername) &&
+                    !TextUtils.isEmpty(mJiraPassword);
+    }
+
     /**
      * Builds a notification which when tapped shares the file
      * @param file The file to attempt to share
@@ -85,7 +91,7 @@ public class BugReportInternal implements ScreenshotListener {
     private void showNotification(@NonNull File file) {
         Uri fileUri = Uri.fromFile(file);
 
-        //send email
+        // Send email
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mApp.getString(R.string.bug_report));
         shareIntent.setType("application/zip");
@@ -100,14 +106,18 @@ public class BugReportInternal implements ScreenshotListener {
 
         PendingIntent jiraPendingIntent = PendingIntent.getActivity(mApp, 0, createJiraIssueIntent, 0);
 
-        Notification notification = new NotificationCompat.Builder(mApp)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp)
                 .setContentTitle(mApp.getString(R.string.notification_title, getAppName()))
                 .setLargeIcon(BitmapFactory.decodeResource(mApp.getResources(), android.R.drawable.ic_menu_share))
                 .setSmallIcon(android.R.drawable.ic_menu_share)
                 .setLocalOnly(true)
-                .addAction(android.R.drawable.ic_menu_share, "Share Bug Report", sharePendingIntent)
-                .addAction(R.drawable.ic_jira, "Create JIRA Issue", jiraPendingIntent)
-                .build();
+                .addAction(android.R.drawable.ic_menu_share, mApp.getString(R.string.share_bug_report), sharePendingIntent);
+
+        if (BugReportInternal.isJiraEnabled()) {
+            builder.addAction(R.drawable.ic_jira, mApp.getString(R.string.create_jira_ticket), jiraPendingIntent);
+        }
+
+        Notification notification = builder.build();
 
         notification.flags = Notification.FLAG_AUTO_CANCEL;
 
@@ -182,16 +192,10 @@ public class BugReportInternal implements ScreenshotListener {
     }
 
     @Nullable
-    private File captureScreen() {
+    private File saveBitmap(Bitmap bitmap) {
         Activity activity = mActivity.get();
         if (activity != null) {
             try {
-                // create bitmap screen capture
-                View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.setDrawingCacheEnabled(true);
-                Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
-                rootView.setDrawingCacheEnabled(false);
-
                 // Output file
                 File imageFile = getExternalFile(mApp, "ScreenCapture_" + Calendar.getInstance().getTimeInMillis() + ".jpg");
 
@@ -215,19 +219,30 @@ public class BugReportInternal implements ScreenshotListener {
         return new File(context.getExternalFilesDir(null), filename);
     }
 
-        /**
+    /**
      * Execute the data collection task
      */
     public void execute() {
-        execute(null);
+        new CollectorAsyncTask().execute();
+    }
+
+    /**
+     * Execute the data collection task
+     */
+    public void execute(Bitmap bitmap, CollectorListener listener) {
+        new CollectorAsyncTask()
+                .setCollectorListener(listener)
+                .setBitmap(bitmap)
+                .execute();
     }
 
     /**
      * Execute the data collection task
      */
     public void execute(@Nullable File screenshot) {
-        new CollectorAsyncTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,
-                screenshot);
+        new CollectorAsyncTask()
+                .setFile(screenshot)
+                .execute();
     }
 
     @Override
@@ -235,20 +250,46 @@ public class BugReportInternal implements ScreenshotListener {
         execute(screenshot);
     }
 
+    public interface CollectorListener {
+        void collectorCompleted(File file);
+    }
+
     private List<File> addApplicationFolders() {
         return ZipUtils.getFiles(new File(mApp.getApplicationInfo().dataDir), true);
     }
 
-    private class CollectorAsyncTask extends AsyncTask<File , Void, File> {
+    private class CollectorAsyncTask extends AsyncTask<File, Void, File> {
+
+        private CollectorListener mListener;
+        private Bitmap mBitmap;
+        private File mFile;
+
+        public CollectorAsyncTask setCollectorListener(CollectorListener listener) {
+            mListener = listener;
+            return this;
+        }
+
+        public CollectorAsyncTask setBitmap(Bitmap bitmap) {
+            mBitmap = bitmap;
+            return this;
+        }
+
+        public CollectorAsyncTask setFile(File file) {
+            mFile = file;
+            return this;
+        }
+
         @Override
         protected File doInBackground(File... screenshot) {
             try {
 
                 List<File> files = new ArrayList<>();
-                if (screenshot.length > 0 && screenshot[0] != null) {
-                    files.add(screenshot[0]);
-                } else {
-                    files.add(captureScreen());
+                if (mFile != null) {
+                    files.add(mFile);
+                }
+
+                if (mBitmap != null) {
+                    files.add(saveBitmap(mBitmap));
                 }
 
                 File deviceInfo = collectDeviceInfo(mApp.getApplicationContext());
@@ -268,7 +309,9 @@ public class BugReportInternal implements ScreenshotListener {
 
         @Override
         protected void onPostExecute(File file) {
-            if (file != null) {
+            if (mListener != null) {
+                mListener.collectorCompleted(file);
+            } else if (file != null) {
                 showNotification(file);
             } else {
                 Toast.makeText(mApp, "Unable to create bug report", Toast.LENGTH_SHORT).show();

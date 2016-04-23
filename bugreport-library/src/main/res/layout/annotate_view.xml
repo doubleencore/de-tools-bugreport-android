@@ -19,12 +19,20 @@
         app:fab_addButtonSize="mini">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/send"
+            android:id="@+id/send_jira"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_icon="@drawable/ic_jira"
+            app:fab_size="mini"
+            app:fab_title="@string/create_jira_ticket"/>
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/send_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fab_icon="@android:drawable/ic_menu_send"
             app:fab_size="mini"
-            app:fab_title="@string/send_report"/>
+            app:fab_title="@string/send_email"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/clear"
@@ -43,5 +51,13 @@
             app:fab_title="@string/draw"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone">
+    </ProgressBar>
 
 </merge>

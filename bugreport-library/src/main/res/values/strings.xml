@@ -4,10 +4,12 @@
     <string name="notification_title">%s bug report</string>
     <string name="notification_text">Tap to share the bug report with a developer</string>
     <string name="share">Share</string>
+    <string name="share_bug_report">Share Bug Report</string>
     <string name="bug_report">Bug report</string>
 
     <!-- Annotate View -->
-    <string name="send_report">Send Report</string>
+    <string name="create_jira_ticket">Create JIRA ticket</string>
+    <string name="send_email">Send Email</string>
     <string name="clear">Clear</string>
     <string name="draw">Draw</string>
 
@@ -20,5 +22,10 @@
     <string name="jira_project_title">JIRA Project %s</string>
     <string name="please_enter_summary">Please enter a summary.</string>
     <string name="jira_intent_label">Create JIRA Issue</string>
+    <string name="notification_created">Created ticket %s</string>
+    <string name="notification_attaching">Attaching file to ticket %s</string>
+    <string name="notification_error">Failed to attach file to %s</string>
+    <string name="jira_error">Failed to create a ticket in %s</string>
+
 
 </resources>
