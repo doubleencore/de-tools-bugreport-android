@@ -9,7 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.doubleencore.bugreport.internal.BugReportInternal;
-import com.doubleencore.bugreport.internal.ScreenshotObserver;
+import com.doubleencore.bugreport.internal.screenshot.ScreenshotObserver;
 
 /**
  * Created on 9/2/15.

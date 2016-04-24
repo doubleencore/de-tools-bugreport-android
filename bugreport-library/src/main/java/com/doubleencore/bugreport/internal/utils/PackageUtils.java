@@ -1,10 +1,10 @@
-package com.doubleencore.bugreport.internal;
+package com.doubleencore.bugreport.internal.utils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
- * Created by chris on 4/23/16.
+ * Created on 4/23/16.
  */
 public final class PackageUtils {
     private PackageUtils() {

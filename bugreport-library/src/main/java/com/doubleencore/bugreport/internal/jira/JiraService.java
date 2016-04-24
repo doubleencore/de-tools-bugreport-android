@@ -32,7 +32,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static com.doubleencore.bugreport.internal.PackageUtils.getAppName;
+import static com.doubleencore.bugreport.internal.utils.PackageUtils.getAppName;
 
 public class JiraService extends IntentService {
 
@@ -75,6 +75,21 @@ public class JiraService extends IntentService {
         context.startService(intent);
     }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        mAttachmentPath = intent.getData().getPath();
+        mContext = getApplicationContext();
+
+        CreateIssue createIssue = new CreateIssue(mProjectKey, intent.getStringExtra(KEY_SUMMARY),
+                intent.getStringExtra(KEY_DESCRIPTION), DEFAULT_ISSUE_TYPE);
+        CreateIssueResponse response = createIssue(createIssue);
+        if (response != null) {
+            uploadAttachment(response.id, response.key);
+        } else {
+            errorNotification(mContext.getString(R.string.jira_error, mProjectKey));
+        }
+    }
+
     private void uploadAttachment(String issueId, String key) {
         String url = JIRA_SERVER_URL + String.format(ATTACHMENT_PATH_FORMAT, issueId);
 
@@ -93,21 +108,6 @@ public class JiraService extends IntentService {
         } catch (FileNotFoundException | MalformedURLException e) {
             Log.e(TAG, "Failed to attached: " + e);
             errorNotification(mContext.getString(R.string.notification_error, key));
-        }
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        mAttachmentPath = intent.getData().getPath();
-        mContext = getApplicationContext();
-
-        CreateIssue createIssue = new CreateIssue(mProjectKey, intent.getStringExtra(KEY_SUMMARY),
-                intent.getStringExtra(KEY_DESCRIPTION), DEFAULT_ISSUE_TYPE);
-        CreateIssueResponse response = createIssue(createIssue);
-        if (response != null) {
-            uploadAttachment(response.id, response.key);
-        } else {
-            errorNotification(mContext.getString(R.string.jira_error, mProjectKey));
         }
     }
 

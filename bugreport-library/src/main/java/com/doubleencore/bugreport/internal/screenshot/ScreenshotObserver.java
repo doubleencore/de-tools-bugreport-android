@@ -1,4 +1,4 @@
-package com.doubleencore.bugreport.internal;
+package com.doubleencore.bugreport.internal.screenshot;
 
 import android.annotation.TargetApi;
 import android.os.Build;

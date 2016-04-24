@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,6 +24,8 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.doubleencore.bugreport.internal.jira.CreateIssueActivity;
+import com.doubleencore.bugreport.internal.screenshot.ScreenshotListener;
+import com.doubleencore.bugreport.internal.utils.ZipUtils;
 import com.doubleencore.bugreport.lib.R;
 import com.doubleencore.buildutils.BuildUtils;
 
@@ -38,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.doubleencore.bugreport.internal.PackageUtils.getAppName;
+import static com.doubleencore.bugreport.internal.utils.PackageUtils.getAppName;
 
 /**
  * Created on 4/2/14.
@@ -147,6 +150,8 @@ public class BugReportInternal implements ScreenshotListener {
      * @return File which was generated that contains the information
      * @throws java.io.IOException
      */
+    @NonNull
+    @WorkerThread
     private File collectDeviceInfo(@NonNull Context context) throws IOException {
         File deviceInfo = new File(context.getExternalCacheDir(), "device_info.txt");
         if (deviceInfo.exists()) {
@@ -170,6 +175,7 @@ public class BugReportInternal implements ScreenshotListener {
     }
 
     @Nullable
+    @WorkerThread
     private File collectLogcat() throws IOException {
 
         Process process = Runtime.getRuntime().exec("logcat -v long -d");
@@ -189,7 +195,8 @@ public class BugReportInternal implements ScreenshotListener {
     }
 
     @Nullable
-    private File saveBitmap(Bitmap bitmap) {
+    @WorkerThread
+    private File saveBitmap(@NonNull Bitmap bitmap) {
         Activity activity = mActivity.get();
         if (activity != null) {
             try {
