@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.doubleencore.bugreport.internal.PackageUtils.getAppName;
+
 /**
  * Created on 4/2/14.
  */
@@ -107,7 +109,7 @@ public class BugReportInternal implements ScreenshotListener {
         PendingIntent jiraPendingIntent = PendingIntent.getActivity(mApp, 0, createJiraIssueIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp)
-                .setContentTitle(mApp.getString(R.string.notification_title, getAppName()))
+                .setContentTitle(mApp.getString(R.string.notification_title, getAppName(mApp)))
                 .setLargeIcon(BitmapFactory.decodeResource(mApp.getResources(), android.R.drawable.ic_menu_share))
                 .setSmallIcon(android.R.drawable.ic_menu_share)
                 .setLocalOnly(true)
@@ -123,11 +125,6 @@ public class BugReportInternal implements ScreenshotListener {
 
         NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(Integer.MAX_VALUE, notification);
-    }
-
-    @NonNull
-    private String getAppName() {
-        return mApp.getApplicationContext().getString(mApp.getApplicationInfo().labelRes);
     }
 
     public static BugReportInternal getInstance() {

@@ -1,10 +1,16 @@
 package com.doubleencore.bugreport.internal.jira;
 
+import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.doubleencore.bugreport.internal.BugReportInternal;
 import com.doubleencore.bugreport.lib.BuildConfig;
@@ -15,20 +21,20 @@ import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Credentials;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import javax.net.ssl.HttpsURLConnection;
 
-public class JiraService implements Callback {
+import static com.doubleencore.bugreport.internal.PackageUtils.getAppName;
+
+public class JiraService extends IntentService {
 
     private static final String TAG = JiraService.class.getSimpleName();
 
@@ -39,39 +45,34 @@ public class JiraService implements Callback {
     private static final String HEADER_KEY_XTOKEN = "X-Atlassian-Token";
     private static final String HEADER_VALUE_XTOKEN = "nocheck";
     private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final MediaType TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final int RESPONSE_CREATED = 201;
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String TYPE_JSON = "application/json; charset=utf-8";
 
-    private OkHttpClient mHttpClient = new OkHttpClient();
+    private static final String KEY_SUMMARY = "key_summary";
+    private static final String KEY_DESCRIPTION = "key_description";
+
     private Gson mGson = new Gson();
     private Context mContext;
     private String mAttachmentPath;
-    private String mProjectKey;
-    private String mUsername;
-    private String mPassword;
 
-    public JiraService(Context context) {
+    private String mProjectKey = BugReportInternal.getJiraProjectKey();
+    private String mUsername = BugReportInternal.getJiraUsername();
+    private String mPassword = BugReportInternal.getJiraPassword();
+
+
+    public JiraService() {
+        super(TAG);
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
-        mContext = context;
-        mProjectKey = BugReportInternal.getJiraProjectKey();
-        mUsername = BugReportInternal.getJiraUsername();
-        mPassword = BugReportInternal.getJiraPassword();
     }
 
-    public void createJiraIssue(@NonNull Uri attachmentUri, String summary, String description) {
-        mAttachmentPath = attachmentUri.getPath();
+    public static void start(@NonNull Context context, @NonNull Uri attachmentUri,
+                             @NonNull String summary, @NonNull String description) {
+        Intent intent = new Intent(context, JiraService.class);
+        intent.putExtra(KEY_SUMMARY, summary);
+        intent.putExtra(KEY_DESCRIPTION, description);
+        intent.setData(attachmentUri);
 
-        CreateIssue createIssue = new CreateIssue(mProjectKey, summary, description, DEFAULT_ISSUE_TYPE);
-
-        String credential = Credentials.basic(mUsername, mPassword);
-        RequestBody body = RequestBody.create(TYPE_JSON, mGson.toJson(createIssue));
-        Request request = new Request.Builder()
-                .url(JIRA_SERVER_URL + CREATE_ISSUE_PATH)
-                .post(body)
-                .addHeader(HEADER_AUTHORIZATION, credential)
-                .build();
-
-        mHttpClient.newCall(request).enqueue(this);
+        context.startService(intent);
     }
 
     private void uploadAttachment(String issueId, String key) {
@@ -91,24 +92,79 @@ public class JiraService implements Callback {
             uploadRequest.startUpload();
         } catch (FileNotFoundException | MalformedURLException e) {
             Log.e(TAG, "Failed to attached: " + e);
-            Toast.makeText(mContext, mContext.getString(R.string.notification_error, key), Toast.LENGTH_SHORT).show();
+            errorNotification(mContext.getString(R.string.notification_error, key));
         }
     }
 
     @Override
-    public void onResponse(Call call, Response response) throws IOException {
-        if (response.code() == RESPONSE_CREATED) {
-            CreateIssueResponse issueResponse = mGson.fromJson(response.body().string(), CreateIssueResponse.class);
-            uploadAttachment(issueResponse.id, issueResponse.key);
+    protected void onHandleIntent(Intent intent) {
+        mAttachmentPath = intent.getData().getPath();
+        mContext = getApplicationContext();
+
+        CreateIssue createIssue = new CreateIssue(mProjectKey, intent.getStringExtra(KEY_SUMMARY),
+                intent.getStringExtra(KEY_DESCRIPTION), DEFAULT_ISSUE_TYPE);
+        CreateIssueResponse response = createIssue(createIssue);
+        if (response != null) {
+            uploadAttachment(response.id, response.key);
         } else {
-            Log.e(TAG, "Failed to create ticket: " + response.toString());
-            Toast.makeText(mContext, mContext.getString(R.string.jira_error, mProjectKey), Toast.LENGTH_SHORT).show();
+            errorNotification(mContext.getString(R.string.jira_error, mProjectKey));
         }
     }
 
-    @Override
-    public void onFailure(Call call, IOException e) {
-        Log.e(TAG, "Failed to create ticket: " + e.toString());
-        Toast.makeText(mContext, mContext.getString(R.string.jira_error, mProjectKey), Toast.LENGTH_SHORT).show();
+    private void errorNotification(String error) {
+
+        Notification notification = new NotificationCompat.Builder(mContext)
+                .setContentTitle(mContext.getString(R.string.notification_title, getAppName(mContext)))
+                .setContentText(error)
+                .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), android.R.drawable.ic_menu_share))
+                .setSmallIcon(android.R.drawable.ic_menu_share)
+                .setLocalOnly(true)
+                .build();
+
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(Integer.MAX_VALUE, notification);
+    }
+
+    @Nullable
+    private CreateIssueResponse createIssue(@NonNull CreateIssue issue) {
+        URL url;
+        StringBuilder response = new StringBuilder();
+        try {
+            url = new URL(JIRA_SERVER_URL + CREATE_ISSUE_PATH);
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            conn.setRequestProperty(HEADER_AUTHORIZATION, Credentials.basic(mUsername, mPassword));
+            conn.setRequestProperty(HEADER_CONTENT_TYPE, TYPE_JSON);
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+            writer.write(mGson.toJson(issue));
+            writer.flush();
+            writer.close();
+            os.close();
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpsURLConnection.HTTP_CREATED) {
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+
+            return mGson.fromJson(response.toString(), CreateIssueResponse.class);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to create ticket: " + e);
+            return null;
+        }
     }
 }

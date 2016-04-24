@@ -42,8 +42,7 @@ public class CreateIssueActivity extends AppCompatActivity {
 
         view.setEnabled(false);
 
-        JiraService jiraService = new JiraService(this);
-        jiraService.createJiraIssue(attachmentUri, summary, description);
+        JiraService.start(this, attachmentUri, summary, description);
         finish();
     }
 }

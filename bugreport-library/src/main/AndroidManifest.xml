@@ -12,6 +12,9 @@
         <activity
             android:name="com.doubleencore.bugreport.internal.jira.CreateIssueActivity"
             android:theme="@style/Theme.AppCompat"/>
+
+        <service android:name="com.doubleencore.bugreport.internal.jira.JiraService"
+                 android:exported="false"/>
     </application>
 
 </manifest>
